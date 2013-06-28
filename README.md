@@ -1,4 +1,4 @@
 docker-mixer
 ============
 
-A simple tool to deploy multiple docker containers.
+A quick and simple tool to provision multiple docker containers based on a yaml specification.
