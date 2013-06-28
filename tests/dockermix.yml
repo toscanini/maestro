@@ -1,9 +1,23 @@
 containers:
   test_server_1: 
-    base: ubuntu
+    base_image: ubuntu
     ports: 
       - '8080' 
     command: 'ps aux' 
+    #hostname: test_server_1 
+    #user: root
+    #detach: true
+    #stdin_open: false
+    #tty: {}
+    #mem_limit: {}
+    #environment: {}
+    #dns: {}
+    #volumes: {}
+    #volumes_from: {}
+    #dockerfile:
+    #  body: {}
+    #  tag: {}
+    #  commit: {}
   test_server_2: 
-    base: ubuntu
+    base_image: ubuntu
     command: 'ls -l'

@@ -34,7 +34,7 @@ class TestContainer(unittest.TestCase):
       
   def testPorts(self):
     env = yaml.load(self.mix.dump())
-
+    self.mix.save()
     for container in env['containers']:
       state = docker.Client().inspect_container(env['containers'][container]['container_id'])
       
@@ -60,10 +60,38 @@ class TestContainer(unittest.TestCase):
       self.assertEqual(str(e.exception), '404 Client Error: Not Found')
 
   def testSave(self):
-    pass
+    self.mix.save()
+    with open('environment.yml', 'r') as input_file:
+      env = yaml.load(input_file)
+
+    for container in env['containers']:
+      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
+      
+      self.assertIsNotNone(state)
+      if container == 'test_server_1':
+        self.assertIn('8080', state['NetworkSettings']['PortMapping'])
+      elif container == 'test_server_2':
+        self.assertEqual(state['NetworkSettings']['PortMapping'], {})
+      else:
+        # Shouldn't get here
+        self.assertFalse(True)
 
   def testLoad(self):
-    pass
+    self.mix.save()
+    mix = dockermix.ContainerMix(environment = 'environment.yml')
+    env = yaml.load(mix.dump())    
+    
+    for container in env['containers']:
+      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
+      
+      self.assertIsNotNone(state)
+      if container == 'test_server_1':
+        self.assertIn('8080', state['NetworkSettings']['PortMapping'])
+      elif container == 'test_server_2':
+        self.assertEqual(state['NetworkSettings']['PortMapping'], {})
+      else:
+        # Shouldn't get here
+        self.assertFalse(True)
     
 if __name__ == '__main__':
     unittest.main()
