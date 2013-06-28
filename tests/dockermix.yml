@@ -2,6 +2,8 @@ containers:
   test_server_1: 
     base: ubuntu
     ports: 
-      - '8080'  
+      - '8080' 
+    command: 'ps aux' 
   test_server_2: 
     base: ubuntu
+    command: 'ls -l'

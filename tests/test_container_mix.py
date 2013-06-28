@@ -5,10 +5,15 @@ from dockermix import dockermix
 from requests.exceptions import HTTPError
 
 class TestContainer(unittest.TestCase):
+  def setUp(self):
+    self.mix = dockermix.ContainerMix('dockermix.yml')
+    self.mix.build()
+    
+  def tearDown(self):
+    self.mix.destroy()
+
   def testBuild(self):
-    mix = dockermix.ContainerMix('dockermix.yml')
-    mix.build()
-    env = yaml.load(mix.dump())
+    env = yaml.load(self.mix.dump())
 
     self.assertIsNotNone(env)
     
@@ -17,14 +22,18 @@ class TestContainer(unittest.TestCase):
 
       state = docker.Client().inspect_container(env['containers'][container]['container_id'])
 
-      #self.assertEqual(state['Path'], 'ps')
-      #self.assertEqual(state['Args'][0], 'aux')
       self.assertEqual(state['Config']['Image'], 'ubuntu')
+      self.assertEqual(state['State']['ExitCode'], 0)
 
+      if container == 'test_server_1':
+        self.assertEqual(state['Path'], 'ps')
+        self.assertEqual(state['Args'][0], 'aux')
+      elif container == 'test_server_2':
+        self.assertEqual(state['Path'], 'ls')
+        self.assertEqual(state['Args'][0], '-l')  
+      
   def testPorts(self):
-    mix = dockermix.ContainerMix('dockermix.yml')
-    mix.build()
-    env = yaml.load(mix.dump())
+    env = yaml.load(self.mix.dump())
 
     for container in env['containers']:
       state = docker.Client().inspect_container(env['containers'][container]['container_id'])
@@ -49,6 +58,12 @@ class TestContainer(unittest.TestCase):
         docker.Client().inspect_container(env['containers'][container]['container_id'])
 
       self.assertEqual(str(e.exception), '404 Client Error: Not Found')
+
+  def testSave(self):
+    pass
+
+  def testLoad(self):
+    pass
     
 if __name__ == '__main__':
     unittest.main()

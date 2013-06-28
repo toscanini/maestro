@@ -26,9 +26,13 @@ class ContainerMix:
       ports = None
       if 'ports' in self.config['containers'][container]:
         ports = self.config['containers'][container]['ports']
+      
+      command = None
+      if 'command' in self.config['containers'][container]:
+        command = self.config['containers'][container]['command']
         
       self.log.info('Building container: %s using base template %s', container, base)
-      build = Container(container, base_image=base, ports=ports)
+      build = Container(container, base_image=base, ports=ports, command=command)
 
       dockerfile = None
       if 'dockerfile' in self.config['containers'][container]:
