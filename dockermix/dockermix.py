@@ -29,7 +29,7 @@ class ContainerMix:
         
       #BaseContainer(base)
       self.log.info('Building container: %s using base template %s', container, base)
-      build = Context(container, base_image=base, ports=ports)
+      build = Container(container, base_image=base, ports=ports)
       build.build()
 
       self.containers[container] = build
@@ -88,7 +88,7 @@ class ContainerMix:
   
 
 class Container:
-  def __init__(self, name, build_tag=None, container_id=None, image_id=None, base_image=None, minion_config=None, top_state=None, ports=None):
+  def __init__(self, name, build_tag=None, container_id=None, image_id=None, base_image=None, ports=None):
     self.log = logging.getLogger('dockermix')
 
     self.name = name
@@ -110,8 +110,6 @@ class Container:
   def build(self):        
     self._build_container()
     self._start_container()
-    self._accept_keys()
-    self._verify_minion()
     
   def destroy(self):
     self.docker_client.stop(self.container_id)
@@ -122,17 +120,17 @@ class Container:
     dockerfile = """FROM %s
     MAINTAINER Kimbro Staken "kstaken@kstaken.com"
 
-    CMD ["salt-minion"]
-
-    RUN echo %s > /etc/salt/minion
+    RUN apt-get update
+    RUN apt-get -y install mysql-server
+    CMD = ["mysqld"]
     """
 
     # master ip here probably needs to be dynamic
-    minionconfig = '\"master: 172.16.42.1\\nid: %s\"' % self.build_tag
+    #minionconfig = '\"master: 172.16.42.1\\nid: %s\"' % self.build_tag
     
-    self.log.info("Building container with minionconfig: %s", minionconfig)
+    #self.log.info("Building container with minionconfig: %s", minionconfig)
     # Build the container
-    result = self.docker_client.build((dockerfile % (self.base_image, minionconfig)).split('\n'))
+    result = self.docker_client.build((dockerfile % (self.base_image)).split('\n'))
     self.image_id = result[0]
     
     # Tag the container with the name and process id

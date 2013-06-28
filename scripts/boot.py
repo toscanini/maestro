@@ -4,6 +4,6 @@ import sys
 sys.path.append('.')
 from dockermix import dockermix
 
-containers = dockermix.ContainerMix('containers.yml')
+containers = dockermix.ContainerMix('../containers.yml')
 containers.build()
 containers.save()
