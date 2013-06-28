@@ -14,24 +14,8 @@ class TestContainer(unittest.TestCase):
 
   def testBuild(self):
     env = yaml.load(self.mix.dump())
+    self._configCheck(env)   
 
-    self.assertIsNotNone(env)
-    
-    for container in env['containers']:
-      self.assertIn(container, ['test_server_1', 'test_server_2'])
-
-      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
-
-      self.assertEqual(state['Config']['Image'], 'ubuntu')
-      self.assertEqual(state['State']['ExitCode'], 0)
-
-      if container == 'test_server_1':
-        self.assertEqual(state['Path'], 'ps')
-        self.assertEqual(state['Args'][0], 'aux')
-      elif container == 'test_server_2':
-        self.assertEqual(state['Path'], 'ls')
-        self.assertEqual(state['Args'][0], '-l')  
-      
   def testPorts(self):
     env = yaml.load(self.mix.dump())
     self.mix.save()
@@ -64,34 +48,32 @@ class TestContainer(unittest.TestCase):
     with open('environment.yml', 'r') as input_file:
       env = yaml.load(input_file)
 
-    for container in env['containers']:
-      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
-      
-      self.assertIsNotNone(state)
-      if container == 'test_server_1':
-        self.assertIn('8080', state['NetworkSettings']['PortMapping'])
-      elif container == 'test_server_2':
-        self.assertEqual(state['NetworkSettings']['PortMapping'], {})
-      else:
-        # Shouldn't get here
-        self.assertFalse(True)
+    self._configCheck(env)        
 
   def testLoad(self):
     self.mix.save()
     mix = dockermix.ContainerMix(environment = 'environment.yml')
     env = yaml.load(mix.dump())    
     
-    for container in env['containers']:
-      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
-      
-      self.assertIsNotNone(state)
-      if container == 'test_server_1':
-        self.assertIn('8080', state['NetworkSettings']['PortMapping'])
-      elif container == 'test_server_2':
-        self.assertEqual(state['NetworkSettings']['PortMapping'], {})
-      else:
-        # Shouldn't get here
-        self.assertFalse(True)
+    self._configCheck(env)    
     
+  def _configCheck(self, env):
+    self.assertIsNotNone(env)
+    
+    for container in env['containers']:
+      self.assertIn(container, ['test_server_1', 'test_server_2'])
+
+      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
+
+      self.assertEqual(state['Config']['Image'], 'ubuntu')
+      self.assertEqual(state['State']['ExitCode'], 0)
+
+      if container == 'test_server_1':
+        self.assertEqual(state['Path'], 'ps')
+        self.assertEqual(state['Args'][0], 'aux')
+      elif container == 'test_server_2':
+        self.assertEqual(state['Path'], 'ls')
+        self.assertEqual(state['Args'][0], '-l')  
+
 if __name__ == '__main__':
     unittest.main()
