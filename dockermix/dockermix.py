@@ -8,10 +8,10 @@ class ContainerMix:
     self._setupLogging()
     self.containers = {}
     
-    if (environment):
+    if environment:
       self.load(environment)
     else:
-      if (not conf_file.startswith('/')):
+      if not conf_file.startswith('/'):
         conf_file = os.path.join(os.path.dirname(sys.argv[0]), conf_file)
 
       data = open(conf_file, 'r')
@@ -24,13 +24,16 @@ class ContainerMix:
     for container in self.config['containers']:
       base = self.config['containers'][container]['base']
       ports = None
-      if ('ports' in self.config['containers'][container]):
+      if 'ports' in self.config['containers'][container]:
         ports = self.config['containers'][container]['ports']
         
-      #BaseContainer(base)
       self.log.info('Building container: %s using base template %s', container, base)
       build = Container(container, base_image=base, ports=ports)
-      build.build()
+
+      dockerfile = None
+      if 'dockerfile' in self.config['containers'][container]:
+        dockerfile = self.config['containers'][container]['dockerfile']
+      build.build(dockerfile)
 
       self.containers[container] = build
       
@@ -65,7 +68,7 @@ class ContainerMix:
       output['container_id'] = str(origin.container_id)
       output['build_tag'] = str(origin.build_tag)
       
-      if (origin.ports):
+      if origin.ports:
         output['ports'] = {}
         for port in origin.ports:
           public_port = origin.docker_client.port(origin.container_id, str(port))
@@ -95,42 +98,31 @@ class Container:
     self.container_id=container_id
     self.image_id=image_id
     self.build_tag = build_tag
-    if (not build_tag):
+    if not build_tag:
       self.build_tag = name + '-' + str(os.getpid())
-    
-    self.minion_config = minion_config
-    self.top_state = top_state
     
     self.docker_client = docker.Client()
     self.ports = ports
     self.base_image = 'ubuntu'
-    if (base_image):
+    if base_image:
       self.base_image = base_image
 
-  def build(self):        
-    self._build_container()
+  def build(self, dockerfile=None):
+    if dockerfile:        
+      self._build_container(dockerfile)
+    else:
+      # If there's no dockerfile then we're just launching an empty base    
+      self.image_id = self.base_image
+
     self._start_container()
     
   def destroy(self):
     self.docker_client.stop(self.container_id)
     self.docker_client.remove_image(self.build_tag)
 
-  def _build_container(self):
-    # Generate the docker build profile
-    dockerfile = """FROM %s
-    MAINTAINER Kimbro Staken "kstaken@kstaken.com"
-
-    RUN apt-get update
-    RUN apt-get -y install mysql-server
-    CMD = ["mysqld"]
-    """
-
-    # master ip here probably needs to be dynamic
-    #minionconfig = '\"master: 172.16.42.1\\nid: %s\"' % self.build_tag
-    
-    #self.log.info("Building container with minionconfig: %s", minionconfig)
+  def _build_container(self, dockerfile):
     # Build the container
-    result = self.docker_client.build((dockerfile % (self.base_image)).split('\n'))
+    result = self.docker_client.build(dockerfile.split('\n'))
     self.image_id = result[0]
     
     # Tag the container with the name and process id
