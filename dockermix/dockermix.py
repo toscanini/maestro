@@ -91,10 +91,11 @@ class ContainerMix:
   
 
 class Container:
-  def __init__(self, name, build_tag=None, container_id=None, image_id=None, base_image=None, ports=None):
+  def __init__(self, name, command='/bin/true', build_tag=None, container_id=None, image_id=None, base_image=None, ports=None):
     self.log = logging.getLogger('dockermix')
 
     self.name = name
+    self.command = command
     self.container_id=container_id
     self.image_id=image_id
     self.build_tag = build_tag
@@ -118,6 +119,7 @@ class Container:
     
   def destroy(self):
     self.docker_client.stop(self.container_id)
+    self.docker_client.remove_container(self.container_id)    
     self.docker_client.remove_image(self.build_tag)
 
   def _build_container(self, dockerfile):
@@ -131,9 +133,10 @@ class Container:
 
   def _start_container(self):
     # Start the container
-    self.container_id = self.docker_client.create_container(self.image_id, 'salt-minion', 
+    self.container_id = self.docker_client.create_container(self.image_id, self.command, 
       detach=True, ports=self.ports, hostname=self.build_tag)['Id']
     self.docker_client.start(self.container_id)
+
     self.log.info('Container started: %s', self.build_tag)      
       
 class BaseContainer:
