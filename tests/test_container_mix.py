@@ -10,8 +10,9 @@ class TestContainer(unittest.TestCase):
     self.mix.build()
     
   def tearDown(self):
-    self.mix.destroy()
-
+    #self.mix.destroy()
+    pass
+    
   def testBuild(self):
     env = yaml.load(self.mix.dump())
     self._configCheck(env)   

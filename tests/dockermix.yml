@@ -15,10 +15,9 @@ containers:
     dns: 
       - 8.8.8.8
       - 8.8.4.4
-    #volumes: 
-    #  var: 
-    #      /var/tmp: /var
-
+    volumes: 
+      /var/testing: {}
+          
     #volumes_from: {}
     #dockerfile:
     #  body: {}
