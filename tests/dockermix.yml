@@ -4,15 +4,21 @@ containers:
     ports: 
       - '8080' 
     command: 'ps aux' 
-    #hostname: test_server_1 
-    #user: root
-    #detach: true
-    #stdin_open: false
-    #tty: {}
-    #mem_limit: {}
-    #environment: {}
-    #dns: {}
-    #volumes: {}
+    hostname: test_server_1 
+    user: root
+    detach: true
+    stdin_open: true
+    tty: true
+    mem_limit: 2560000
+    environment: 
+      - ENV_VAR=testing
+    dns: 
+      - 8.8.8.8
+      - 8.8.4.4
+    #volumes: 
+    #  var: 
+    #      /var/tmp: /var
+
     #volumes_from: {}
     #dockerfile:
     #  body: {}
@@ -21,3 +27,4 @@ containers:
   test_server_2: 
     base_image: ubuntu
     command: 'ls -l'
+    hostname: test_server_2

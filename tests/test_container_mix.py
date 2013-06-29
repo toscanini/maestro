@@ -71,9 +71,18 @@ class TestContainer(unittest.TestCase):
       if container == 'test_server_1':
         self.assertEqual(state['Path'], 'ps')
         self.assertEqual(state['Args'][0], 'aux')
+        self.assertEqual(state['Config']['Hostname'], 'test_server_1')
+        self.assertEqual(state['Config']['User'], 'root')
+        self.assertTrue(state['Config']['OpenStdin'])
+        self.assertTrue(state['Config']['Tty'])
+        self.assertEqual(state['Config']['Memory'], 2560000)
+        self.assertIn("ENV_VAR=testing", state['Config']['Env'])
+        self.assertIn("8.8.8.8", state['Config']['Dns'])
+        
       elif container == 'test_server_2':
         self.assertEqual(state['Path'], 'ls')
         self.assertEqual(state['Args'][0], '-l')  
-
+        self.assertEqual(state['Config']['Hostname'], 'test_server_2')
+      
 if __name__ == '__main__':
     unittest.main()
