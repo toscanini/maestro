@@ -19,10 +19,7 @@ containers:
       /var/testing: {}
           
     #volumes_from: container_id
-    #dockerfile:
-    #  body: {}
-    #  tag: {}
-    #  commit: {}
+    #dockerfile: 
   test_server_2: 
     base_image: ubuntu
     command: 'ls -l'
