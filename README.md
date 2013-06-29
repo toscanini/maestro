@@ -11,7 +11,7 @@ docker-py: https://github.com/dotcloud/docker-py
 Installation
 ============
 
-    git clone https://github.com/dotcloud/docker-py
+    git clone https://github.com/dotcloud/docker-py.git
     cd docker-py
     python setup.py install
     
