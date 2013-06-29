@@ -6,15 +6,18 @@ A quick and simple tool to start/destroy multiple docker containers based on a s
 Dependencies
 =============
 
+Docker: https://github.com/dotcloud/docker
 docker-py: https://github.com/dotcloud/docker-py
 
 Installation
 ============
 
+Install Docker then:
+
     git clone https://github.com/dotcloud/docker-py.git
     cd docker-py
     python setup.py install
-    
+
     git clone https://github.com/kstaken/dockermix.git
     cd dockermix
     python setup.py install

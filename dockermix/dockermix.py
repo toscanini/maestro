@@ -25,8 +25,8 @@ class ContainerMix:
       base = self.config['containers'][container]['base_image']
         
       self.log.info('Building container: %s using base template %s', container, base)
+      
       build = Container(container, self.config['containers'][container])
-
       dockerfile = None
       if 'dockerfile' in self.config['containers'][container]:
         dockerfile = self.config['containers'][container]['dockerfile']
@@ -83,6 +83,11 @@ class Container:
     self.build_tag = build_tag
     if not build_tag:
       self.build_tag = name + '-' + str(os.getpid())
+
+    if 'command' not in self.config:
+      # TODO: this should probably raise an error rather than default.
+      self.log.info('No command specified in configuration defaulting to /bin/true')     
+      self.config['command'] = '/bin/true'
     
     self.docker_client = docker.Client()
     
@@ -95,7 +100,7 @@ class Container:
     else:
       # If there's no dockerfile then we're just launching an empty base    
       self.config['image_id'] = self.config['base_image']
-
+    
     self._start_container()
     
   def destroy(self):
@@ -114,7 +119,7 @@ class Container:
 
   def _start_container(self):
     # Start the container
-    clean_config = self._clean_config(self.config, ['image_id', 'base_image'])
+    clean_config = self._clean_config(self.config, ['image_id', 'base_image', 'dockerfile'])
     self.config['container_id'] = self.docker_client.create_container(self.config['image_id'], **clean_config)['Id']
     
     self.docker_client.start(self.config['container_id'])

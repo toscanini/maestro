@@ -18,7 +18,7 @@ containers:
     volumes: 
       /var/testing: {}
           
-    #volumes_from: {}
+    #volumes_from: container_id
     #dockerfile:
     #  body: {}
     #  tag: {}
