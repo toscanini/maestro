@@ -111,6 +111,9 @@ class Container:
   def _build_container(self, dockerfile):
     # Build the container
     result = self.docker_client.build(dockerfile.split('\n'))
+    # Commented out until my pull request to add logger configuration gets merged into docker-py
+    #result = self.docker_client.build(dockerfile.split('\n'), logger=self.log)
+    
     self.config['image_id'] = result[0]
     
     # Tag the container with the name and process id
