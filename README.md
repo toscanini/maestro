@@ -11,6 +11,12 @@ docker-py: https://github.com/dotcloud/docker-py
 Installation
 ============
 
+    git clone https://github.com/dotcloud/docker-py
+    cd docker-py
+    python setup.py install
+    
+    git clone https://github.com/kstaken/dockermix.git
+    cd dockermix
     python setup.py install
 
 Configuration File Format
