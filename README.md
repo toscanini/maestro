@@ -3,6 +3,19 @@ dockermix
 
 A quick and simple tool to start/destroy multiple docker containers based on a simple YAML specification.
 
+Dependencies
+=============
+
+docker-py: https://github.com/dotcloud/docker-py
+
+Installation
+============
+
+    python setup.py install
+
+Configuration File Format
+=========================
+
 YAML format basically maps to the docker-py api. Here's an example format:
 
     containers:
@@ -34,3 +47,6 @@ YAML format basically maps to the docker-py api. Here's an example format:
         base_image: ubuntu
         command: 'ls -l'
         hostname: test_server_2
+
+API
+===
