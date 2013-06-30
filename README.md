@@ -14,12 +14,9 @@ Installation
 
 Install Docker then:
 
-    git clone https://github.com/dotcloud/docker-py.git
-    cd docker-py
-    python setup.py install
-
     git clone https://github.com/kstaken/dockermix.git
     cd dockermix
+    pip install -r requirements.txt
     python setup.py install
 
 Configuration File Format
