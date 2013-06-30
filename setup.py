@@ -6,5 +6,5 @@ setup(name='dockermix',
     author_email='kstaken@kstaken.com',
     url='https://github.com/kstaken/dockermix',
     packages=['dockermix'],
-    scripts=['scripts/boot.py', 'scripts/shutdown.py']
+    scripts=['bin/boot.py', 'bin/shutdown.py']
 )
