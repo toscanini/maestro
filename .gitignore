@@ -1,5 +1,6 @@
 environment.yml
 dockermix.log
+src/
 *.py[cod]
 
 # C extensions

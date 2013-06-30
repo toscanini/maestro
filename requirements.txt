@@ -1,0 +1,2 @@
+cmdln>=1.0
+-e git+http://github.com/dotcloud/docker-py.git#egg=docker-py
