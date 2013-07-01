@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import cmdln
 from dockermix import dockermix
 
@@ -19,6 +19,12 @@ class DockermixCli(cmdln.Cmdln):
       cmdln.Cmdln.__init__(self, *args, **kwargs)
       cmdln.Cmdln.do_help.aliases.append("h")
 
+    @cmdln.option("-f", "--dockermix_file",
+                  help='path to the dockermix file to use')
+    @cmdln.option("-e", "--environment_file",
+                  help='path to the environment file to use to save the state of running containers')
+    @cmdln.option("-n", "--no_save", action='store_true',
+                  help='do not save the state to an environment file')
     def do_start(self, subcmd, opts, *args):
       """Start a set of Docker containers
 
@@ -27,8 +33,19 @@ class DockermixCli(cmdln.Cmdln):
         
         ${cmd_option_list}
       """
-      print "Got start"
+      config = opts.dockermix_file
+      if not config:
+        config = os.path.join(os.getcwd(), 'dockermix.yml')
 
-      containers = dockermix.ContainerMix('../dockermix.yml')
+      if not os.path.exists(config):
+        print "No dockermix configuration found {0}".format(config)
+        exit(1)
+      
+      containers = dockermix.ContainerMix(config)
       containers.build()
-      containers.save()
+      if (not opts.no_save):
+        environment = opts.environment_file
+        if not environment:  
+          environment = os.path.join(os.getcwd(), 'environment.yml')
+
+        containers.save(environment)
