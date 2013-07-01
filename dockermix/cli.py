@@ -49,3 +49,24 @@ class DockermixCli(cmdln.Cmdln):
           environment = os.path.join(os.getcwd(), 'environment.yml')
 
         containers.save(environment)
+
+    @cmdln.option("-e", "--environment_file",
+                  help='path to the environment file to use to save the state of running containers')
+    def do_stop(self, subcmd, opts, *args):
+      """Stop a set of Docker containers as defined in an environment file. Note: this currently destroys the containers.
+
+        usage:
+            stop
+        
+        ${cmd_option_list}
+      """
+      environment = opts.environment_file
+      if not environment:  
+        environment = os.path.join(os.getcwd(), 'environment.yml')
+      
+      if not os.path.exists(environment):
+        print "Could not locate the environments file {0}".format(environment)
+        exit(1)
+    
+      containers = dockermix.ContainerMix(environment=environment)
+      containers.destroy() # <--- this needs to be replaced with a stop api
