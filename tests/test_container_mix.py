@@ -83,6 +83,7 @@ class TestContainer(unittest.TestCase):
     for container in env['containers']:
       state = docker.Client().inspect_container(env['containers'][container]['container_id'])
       
+      #Verify the containers are running
       self.assertTrue(state['State']['Running'])
       self.assertEqual(state['State']['ExitCode'], 0)
     
@@ -92,6 +93,7 @@ class TestContainer(unittest.TestCase):
     for container in env['containers']:
       state = docker.Client().inspect_container(env['containers'][container]['container_id'])
       
+      #Verify the containers are stopped 
       self.assertFalse(state['State']['Running'])
       self.assertNotEqual(state['State']['ExitCode'], 0)
 

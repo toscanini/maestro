@@ -25,17 +25,20 @@ class DockermixCli(cmdln.Cmdln):
                   help='path to the environment file to use to save the state of running containers')
     @cmdln.option("-n", "--no_save", action='store_true',
                   help='do not save the state to an environment file')
-    def do_start(self, subcmd, opts, *args):
-      """Start a set of Docker containers
+    def do_build(self, subcmd, opts, *args):
+      """Setup and start a set of Docker containers.
 
         usage:
-            start 
+            build
         
         ${cmd_option_list}
       """
       config = opts.dockermix_file
       if not config:
         config = os.path.join(os.getcwd(), 'dockermix.yml')
+
+      if not config.startswith('/'):
+        config = os.path.join(os.getcwd(), config)
 
       if not os.path.exists(config):
         print "No dockermix configuration found {0}".format(config)
@@ -52,6 +55,21 @@ class DockermixCli(cmdln.Cmdln):
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
+    def do_start(self, subcmd, opts, *args):
+      """Start a set of Docker containers that had been previously stopped. Container state is defined in an environment file. 
+
+        usage:
+            start
+        
+        ${cmd_option_list}
+      """
+      environment = self._verify_environment(opts.environment_file)
+      
+      containers = dockermix.ContainerMix(environment=environment)
+      containers.start() 
+
+    @cmdln.option("-e", "--environment_file",
+                  help='path to the environment file to use to save the state of running containers')
     def do_stop(self, subcmd, opts, *args):
       """Stop a set of Docker containers as defined in an environment file. 
 
@@ -60,13 +78,33 @@ class DockermixCli(cmdln.Cmdln):
         
         ${cmd_option_list}
       """
-      environment = opts.environment_file
+      environment = self._verify_environment(opts.environment_file)
+      
+      containers = dockermix.ContainerMix(environment=environment)
+      containers.stop() 
+
+    @cmdln.option("-e", "--environment_file",
+                  help='path to the environment file to use to save the state of running containers')
+    def do_destroy(self, subcmd, opts, *args):
+      """Stop and destroy a set of Docker containers as defined in an environment file. 
+
+        usage:
+            stop
+        
+        ${cmd_option_list}
+      """
+      environment = self._verify_environment(opts.environment_file)
+      
+      containers = dockermix.ContainerMix(environment=environment)
+      containers.destroy() 
+
+    def _verify_environment(self, environment):
       if not environment:  
         environment = os.path.join(os.getcwd(), 'environment.yml')
       
       if not os.path.exists(environment):
         print "Could not locate the environments file {0}".format(environment)
         exit(1)
+
+      return environment
     
-      containers = dockermix.ContainerMix(environment=environment)
-      containers.stop() 
