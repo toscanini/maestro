@@ -1,10 +1,10 @@
 containers:
   test_server_1: 
-    base: ubuntu
+    base_image: ubuntu
     ports: 
       - '8080'  
   test_server_2: 
-    base: ubuntu
+    base_image: ubuntu
     dockerfile: |
       FROM ubuntu
       MAINTAINER Kimbro Staken "kstaken@kstaken.com"
