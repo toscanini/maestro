@@ -1,0 +1,8 @@
+containers:
+  test_server_1: 
+    base_image: ubuntu
+    ports: 
+      - '8080' 
+    command: '/bin/bash -c "while true; do echo hello world; sleep 60; done;"' 
+    hostname: test_server_1 
+    detach: true

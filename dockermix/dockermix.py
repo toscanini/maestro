@@ -38,7 +38,11 @@ class ContainerMix:
     for container in self.containers:
       self.log.info('Destroying container: %s', container)      
       self.containers[container].destroy()     
- 
+
+  def stop(self):
+    for container in self.containers:      
+      self.containers[container].stop()
+
   def load(self, filename='envrionment.yml'):
     self.log.info('Loading environment from: %s', filename)      
     
@@ -104,10 +108,13 @@ class Container:
     self._start_container()
     
   def destroy(self):
-    self.docker_client.stop(self.config['container_id'])
+    self.stop()
     self.docker_client.remove_container(self.config['container_id'])    
     self.docker_client.remove_image(self.build_tag)
 
+  def stop(self):
+    self.docker_client.stop(self.config['container_id'])
+    
   def _build_container(self, dockerfile):
     # Build the container
     result = self.docker_client.build(dockerfile.split('\n'))

@@ -16,10 +16,11 @@ class TestContainer(unittest.TestCase):
     env = yaml.load(self.mix.dump())
     self._configCheck(env)   
 
+  @unittest.skip("Skipping")
   def testBuildDockerfile(self):
-    self.mix = dockermix.ContainerMix('dockermix-dockerfile.yml')
-    self.mix.build()
-    env = yaml.load(self.mix.dump())
+    mix = dockermix.ContainerMix('dockermix-dockerfile.yml')
+    mix.build()
+    env = yaml.load(mix.dump())
         
     for container in env['containers']:
       state = docker.Client().inspect_container(env['containers'][container]['container_id'])
@@ -72,8 +73,36 @@ class TestContainer(unittest.TestCase):
     with open('environment.yml', 'r') as input_file:
       env = yaml.load(input_file)
 
-    self._configCheck(env)        
-  
+    self._configCheck(env)      
+
+  def testStop(self):
+    mix = dockermix.ContainerMix('dockermix-startstop.yml')
+    mix.build()
+    
+    env = yaml.load(mix.dump())    
+    for container in env['containers']:
+      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
+      
+      self.assertTrue(state['State']['Running'])
+      self.assertEqual(state['State']['ExitCode'], 0)
+    
+    mix.stop()
+    env = yaml.load(mix.dump())    
+    
+    for container in env['containers']:
+      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
+      
+      self.assertFalse(state['State']['Running'])
+      self.assertNotEqual(state['State']['ExitCode'], 0)
+
+#  def testStart(self):  
+#    self.mix.start()
+#    self.mix.save()
+#    mix = dockermix.ContainerMix(environment = 'environment.yml')
+#    env = yaml.load(mix.dump())    
+    
+#    self._configCheck(env)    
+    
   def testLoad(self):
     self.mix.save()
     mix = dockermix.ContainerMix(environment = 'environment.yml')
