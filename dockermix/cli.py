@@ -53,7 +53,7 @@ class DockermixCli(cmdln.Cmdln):
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
     def do_stop(self, subcmd, opts, *args):
-      """Stop a set of Docker containers as defined in an environment file. Note: this currently destroys the containers.
+      """Stop a set of Docker containers as defined in an environment file. 
 
         usage:
             stop
@@ -69,4 +69,4 @@ class DockermixCli(cmdln.Cmdln):
         exit(1)
     
       containers = dockermix.ContainerMix(environment=environment)
-      containers.destroy() # <--- this needs to be replaced with a stop api
+      containers.stop() 

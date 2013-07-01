@@ -129,8 +129,8 @@ class TestContainer(unittest.TestCase):
       self.assertTrue(state['State']['Running'])
       self.assertEqual(state['State']['ExitCode'], 0)
     
-    #mix.destroy()
-    
+    mix.destroy()
+
   def testLoad(self):
     self.mix.save()
     mix = dockermix.ContainerMix(environment = 'environment.yml')
