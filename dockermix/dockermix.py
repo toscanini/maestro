@@ -39,6 +39,10 @@ class ContainerMix:
       self.log.info('Destroying container: %s', container)      
       self.containers[container].destroy()     
 
+  def start(self):
+    for container in self.containers:      
+      self.containers[container].start()
+
   def stop(self):
     for container in self.containers:      
       self.containers[container].stop()
@@ -112,6 +116,9 @@ class Container:
     self.docker_client.remove_container(self.config['container_id'])    
     self.docker_client.remove_image(self.build_tag)
 
+  def start(self):
+    self.docker_client.start(self.config['container_id'])
+  
   def stop(self):
     self.docker_client.stop(self.config['container_id'])
     
@@ -132,7 +139,7 @@ class Container:
     clean_config = self._clean_config(self.config, ['image_id', 'base_image', 'dockerfile'])
     self.config['container_id'] = self.docker_client.create_container(self.config['image_id'], **clean_config)['Id']
     
-    self.docker_client.start(self.config['container_id'])
+    self.start()
 
     self.log.info('Container started: %s', self.build_tag)     
 

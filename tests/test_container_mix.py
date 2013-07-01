@@ -95,13 +95,41 @@ class TestContainer(unittest.TestCase):
       self.assertFalse(state['State']['Running'])
       self.assertNotEqual(state['State']['ExitCode'], 0)
 
-#  def testStart(self):  
-#    self.mix.start()
-#    self.mix.save()
-#    mix = dockermix.ContainerMix(environment = 'environment.yml')
-#    env = yaml.load(mix.dump())    
+    mix.destroy()
+
+  def testStart(self):  
+    mix = dockermix.ContainerMix('dockermix-startstop.yml')
+    mix.build()
     
-#    self._configCheck(env)    
+    env = yaml.load(mix.dump())    
+    for container in env['containers']:
+      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
+    
+      # Verify the containers are running  
+      self.assertTrue(state['State']['Running'])
+      self.assertEqual(state['State']['ExitCode'], 0)
+    
+    mix.stop()
+    env = yaml.load(mix.dump())    
+    
+    for container in env['containers']:
+      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
+      
+      # Verify the containers are stopped
+      self.assertFalse(state['State']['Running'])
+      self.assertNotEqual(state['State']['ExitCode'], 0)
+    
+    mix.start()
+    env = yaml.load(mix.dump())    
+    
+    for container in env['containers']:
+      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
+      
+      # Verify the containers are running again
+      self.assertTrue(state['State']['Running'])
+      self.assertEqual(state['State']['ExitCode'], 0)
+    
+    #mix.destroy()
     
   def testLoad(self):
     self.mix.save()
