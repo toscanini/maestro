@@ -98,6 +98,21 @@ class DockermixCli(cmdln.Cmdln):
       containers = dockermix.ContainerMix(environment=environment)
       containers.destroy() 
 
+    @cmdln.option("-e", "--environment_file",
+                  help='path to the environment file to use to save the state of running containers')
+    def do_status(self, subcmd, opts, *args):
+      """Show the status of a set of containers as defined in an environment file. 
+
+        usage:
+            status
+        
+        ${cmd_option_list}
+      """
+      environment = self._verify_environment(opts.environment_file)
+      
+      containers = dockermix.ContainerMix(environment=environment)
+      print containers.status() 
+
     def _verify_environment(self, environment):
       if not environment:  
         environment = os.path.join(os.getcwd(), 'environment.yml')

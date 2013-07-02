@@ -17,7 +17,7 @@ class TestContainer(unittest.TestCase):
     env = yaml.load(self.mix.dump())
     self._configCheck(env)   
 
-  #@unittest.skip("Skipping")
+  @unittest.skip("Skipping")
   def testBuildDockerfile(self):
     mix = dockermix.ContainerMix('dockermix-dockerfile.yml')
     mix.build()
@@ -151,9 +151,19 @@ class TestContainer(unittest.TestCase):
     for line in lines:
       if len(line) > 0:
         self.assertIn(line[14:29].rstrip(),  ['test_server_1', 'test_server_2'])
-        self.assertEqual(line[67:75].rstrip(), "RUNNING")
+        self.assertEqual(line[67:77].rstrip(), "Running")
 
     mix.destroy()
+
+    status = mix.status() 
+
+    lines = status.split("\n")
+    # Skip over the headers
+    del(lines[0])
+    for line in lines:
+      if len(line) > 0:
+        self.assertIn(line[14:29].rstrip(),  ['test_server_1', 'test_server_2'])
+        self.assertEqual(line[67:77].rstrip(), "Destroyed")
 
   #@unittest.skip("skipping")
   def testLoad(self):
