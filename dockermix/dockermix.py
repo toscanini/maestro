@@ -62,6 +62,26 @@ class ContainerMix:
     with open(filename, 'w') as output_file:
       output_file.write(self.dump())
 
+  def status(self):
+    columns = "{0:<14}{1:<19}{2:<34}{3:<9}\n" 
+    result = columns.format("ID", "NODE", "COMMAND", "STATUS")
+    for container in self.containers:
+      container_id = self.containers[container].config['container_id']
+      
+      state = docker.Client().inspect_container(container_id)
+      command = "".join([state['Path']] + state['Args'] + [" "])
+      command = (command[:30] + '..') if len(command) > 32 else command
+
+      node_name = (container[:15] + '..') if len(container) > 17 else container
+
+      status = 'OFF'
+      if state['State']['Running']:
+        status = 'RUNNING'
+
+      result += columns.format(container_id, node_name, command, status)
+
+    return result
+
   def dump(self):
     result = {}
     result['containers'] = {}

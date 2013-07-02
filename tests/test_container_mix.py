@@ -11,12 +11,13 @@ class TestContainer(unittest.TestCase):
     
   def tearDown(self):
     self.mix.destroy()
-    
+  
+  #@unittest.skip("skipping")  
   def testBuild(self):
     env = yaml.load(self.mix.dump())
     self._configCheck(env)   
 
-  @unittest.skip("Skipping")
+  #@unittest.skip("Skipping")
   def testBuildDockerfile(self):
     mix = dockermix.ContainerMix('dockermix-dockerfile.yml')
     mix.build()
@@ -41,6 +42,7 @@ class TestContainer(unittest.TestCase):
         self.assertEqual(state['Args'][0], '-l')  
         
   
+  #@unittest.skip("skipping")
   def testPorts(self):
     env = yaml.load(self.mix.dump())
     self.mix.save()
@@ -56,6 +58,7 @@ class TestContainer(unittest.TestCase):
         # Shouldn't get here
         self.assertFalse(True)
   
+  #@unittest.skip("skipping")
   def testDestroy(self):
     mix = dockermix.ContainerMix('dockermix.yml')
     mix.build()
@@ -68,13 +71,15 @@ class TestContainer(unittest.TestCase):
 
       self.assertEqual(str(e.exception), '404 Client Error: Not Found')
   
+  #@unittest.skip("skipping")  
   def testSave(self):
     self.mix.save()
     with open('environment.yml', 'r') as input_file:
       env = yaml.load(input_file)
 
-    self._configCheck(env)      
+    self._configCheck(env)  
 
+  #@unittest.skip("skipping")
   def testStop(self):
     mix = dockermix.ContainerMix('dockermix-startstop.yml')
     mix.build()
@@ -99,6 +104,7 @@ class TestContainer(unittest.TestCase):
 
     mix.destroy()
 
+  #@unittest.skip("skipping")
   def testStart(self):  
     mix = dockermix.ContainerMix('dockermix-startstop.yml')
     mix.build()
@@ -133,6 +139,23 @@ class TestContainer(unittest.TestCase):
     
     mix.destroy()
 
+  def testStatus(self):
+    mix = dockermix.ContainerMix('dockermix-startstop.yml')
+    mix.build()
+    
+    status = mix.status() 
+
+    lines = status.split("\n")
+    # Skip over the headers
+    del(lines[0])
+    for line in lines:
+      if len(line) > 0:
+        self.assertIn(line[14:29].rstrip(),  ['test_server_1', 'test_server_2'])
+        self.assertEqual(line[67:75].rstrip(), "RUNNING")
+
+    mix.destroy()
+
+  #@unittest.skip("skipping")
   def testLoad(self):
     self.mix.save()
     mix = dockermix.ContainerMix(environment = 'environment.yml')
