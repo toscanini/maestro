@@ -85,6 +85,19 @@ class DockermixCli(cmdln.Cmdln):
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
+    def do_restart(self, subcmd, opts, *args):
+      """Restart a set of containers as defined in an environment file. 
+
+        usage:
+            restart
+        
+        ${cmd_option_list}
+      """
+      self.do_stop('stop', opts, args)
+      self.do_start('start', opts, args)
+
+    @cmdln.option("-e", "--environment_file",
+                  help='path to the environment file to use to save the state of running containers')
     def do_destroy(self, subcmd, opts, *args):
       """Stop and destroy a set of Docker containers as defined in an environment file. 
 
