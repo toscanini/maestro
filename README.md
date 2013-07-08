@@ -16,11 +16,13 @@ Installation
 Install Docker as described here: http://www.docker.io/gettingstarted/
 
 Then:
+```
     sudo apt-get install -y python-pip
     git clone https://github.com/kstaken/dockermix.git
     cd dockermix
     sudo pip install -r requirements.txt 
     sudo python setup.py install
+```
 
 Configuration File Format
 =========================
@@ -29,30 +31,32 @@ YAML format basically maps to the docker-py api. Here's an example yaml file:
 
 Note: the syntax for volumes is not fully specified and bind mounts are not currently supported.
 
-    containers:
-      test_server_1: 
-        base_image: ubuntu
-        ports: 
-          - '8080' 
-        command: 'ps aux' 
-        hostname: test_server_1 
-        user: root
-        detach: true
-        stdin_open: true
-        tty: true
-        mem_limit: 2560000
-        environment: 
-          - ENV_VAR=testing
-        dns: 
-          - 8.8.8.8
-          - 8.8.4.4
-        volumes: 
-          /var/testing: {}
-              
-      test_server_2: 
-        base_image: ubuntu
-        command: 'ls -l'
-        hostname: test_server_2
+```
+  containers:
+    test_server_1: 
+      base_image: ubuntu
+      ports: 
+        - '8080' 
+      command: 'ps aux' 
+      hostname: test_server_1 
+      user: root
+      detach: true
+      stdin_open: true
+      tty: true
+      mem_limit: 2560000
+      environment: 
+        - ENV_VAR=testing
+      dns: 
+        - 8.8.8.8
+        - 8.8.4.4
+      volumes: 
+        /var/testing: {}
+            
+    test_server_2: 
+      base_image: ubuntu
+      command: 'ls -l'
+      hostname: test_server_2
+```
 
 Command Line Tools
 ===
