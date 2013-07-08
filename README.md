@@ -1,7 +1,7 @@
 dockermix
 ============
 
-A quick and simple tool to start/destroy multiple docker containers based on a simple YAML specification.
+A command line tool to build and manage multi-container docker environments. Allows you to build/start/stop and destory containers as a set with full Docker configuration. Container sets are defined in a simple YAML format that mirrors the options available in the Docker API.
 
 Dependencies
 =============
