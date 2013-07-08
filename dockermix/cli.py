@@ -41,7 +41,7 @@ class DockermixCli(cmdln.Cmdln):
         config = os.path.join(os.getcwd(), config)
 
       if not os.path.exists(config):
-        print "No dockermix configuration found {0}".format(config)
+        sys.stderr.write("No dockermix configuration found {0}\n".format(config))
         exit(1)
       
       containers = dockermix.ContainerMix(config)
@@ -52,6 +52,8 @@ class DockermixCli(cmdln.Cmdln):
           environment = os.path.join(os.getcwd(), 'environment.yml')
 
         containers.save(environment)
+
+      print "Environment launched."
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
@@ -68,6 +70,8 @@ class DockermixCli(cmdln.Cmdln):
       containers = dockermix.ContainerMix(environment=environment)
       containers.start() 
 
+      print "Environment started."
+
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
     def do_stop(self, subcmd, opts, *args):
@@ -83,6 +87,8 @@ class DockermixCli(cmdln.Cmdln):
       containers = dockermix.ContainerMix(environment=environment)
       containers.stop() 
 
+      print "Environment stopped."
+
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
     def do_restart(self, subcmd, opts, *args):
@@ -95,6 +101,8 @@ class DockermixCli(cmdln.Cmdln):
       """
       self.do_stop('stop', opts, args)
       self.do_start('start', opts, args)
+
+      print "Environment restarted."
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
@@ -111,6 +119,8 @@ class DockermixCli(cmdln.Cmdln):
       containers = dockermix.ContainerMix(environment=environment)
       containers.destroy() 
 
+      print "Environment destroyed."
+      
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
     def do_status(self, subcmd, opts, *args):
@@ -131,7 +141,7 @@ class DockermixCli(cmdln.Cmdln):
         environment = os.path.join(os.getcwd(), 'environment.yml')
       
       if not os.path.exists(environment):
-        print "Could not locate the environments file {0}".format(environment)
+        sys.stderr.write("Could not locate the environments file {0}\n".format(environment))
         exit(1)
 
       return environment
