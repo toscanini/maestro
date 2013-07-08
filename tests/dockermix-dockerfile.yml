@@ -2,14 +2,19 @@ containers:
   test_server_1: 
     base_image: ubuntu
     command: ps aux
-    dockerfile: |
-      FROM ubuntu
-      MAINTAINER Kimbro Staken "kstaken@kstaken.com"
+    buildspec: 
+      dockerfile: |
+        FROM ubuntu
+        MAINTAINER Kimbro Staken "kstaken@kstaken.com"
 
-      RUN apt-get update
-      RUN apt-get -y install bash
-      CMD = ["/bin/bash"]   
+        RUN apt-get update
+        RUN apt-get -y install bash
+        CMD = ["/bin/bash"]   
 
   test_server_2: 
     base_image: ubuntu
-    command: 'ls -l'
+    command: 'ls -l'    
+    buildspec:
+      url: https://raw.github.com/kstaken/dockerfile-examples/master/nodejs.docker
+      tags:
+        - kstaken/test_server_2
