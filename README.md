@@ -19,8 +19,8 @@ Then:
     sudo apt-get install -y python-pip
     git clone https://github.com/kstaken/dockermix.git
     cd dockermix
-    pip install -r requirements.txt 
-    python setup.py install
+    sudo pip install -r requirements.txt 
+    sudo python setup.py install
 
 Configuration File Format
 =========================
@@ -90,6 +90,7 @@ Show the status of the containers in an environment.
 Roadmap
 ====
 
+- Bootstrap installer
 - Add the ability to share configuration data between containers
 - Explicitly specify startup order and dependencies
 - More powerful Docker Builder support (currently docker-py reimplements Docker Builder and it out of sync with the server implementation)
