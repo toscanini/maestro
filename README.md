@@ -29,7 +29,15 @@ Configuration File Format
 
 YAML format basically maps to the docker-py api. Here's an example yaml file:
 
-Note: the syntax for volumes is not fully specified and bind mounts are not currently supported.
+`base_image` is the Docker container to use to run the command. It must already exist on the system and won't be pulled automatically.
+
+`base_image` and `command` are the only required options. 
+
+*Note: Command is required by the Docker Python api and having to specify it here can cause problems with images that pre-define entrypoints and commands.*
+
+*Note: the syntax for volumes is not fully specified and bind mounts are not currently supported.*
+
+*Note 2: There is basic support for embedding dockerfiles in the specification but the details of how that works is going to change. It's also currently limited to docker builder implementation that's part of docker-py and doesn't align with the current state of the Docker Builder documentation.*
 
 ```
   containers:
@@ -55,7 +63,6 @@ Note: the syntax for volumes is not fully specified and bind mounts are not curr
     test_server_2: 
       base_image: ubuntu
       command: 'ls -l'
-      hostname: test_server_2
 ```
 
 Command Line Tools
@@ -98,4 +105,6 @@ Roadmap
 - Add the ability to share configuration data between containers
 - Explicitly specify startup order and dependencies
 - More powerful Docker Builder support (currently docker-py reimplements Docker Builder and it out of sync with the server implementation)
+- Add automatic pulling of base images
+- Make it easier to run the full test suite
 - ...

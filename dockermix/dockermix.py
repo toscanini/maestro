@@ -23,6 +23,7 @@ class ContainerMix:
 
   def build(self):
     for container in self.config['containers']:
+      #TODO: confirm base_image exists
       base = self.config['containers'][container]['base_image']
         
       self.log.info('Building container: %s using base template %s', container, base)
@@ -119,8 +120,10 @@ class Container:
 
     if 'command' not in self.config:
       # TODO: this should probably raise an error rather than default.
-      self.log.info('No command specified in configuration defaulting to /bin/true')     
-      self.config['command'] = '/bin/true'
+      print "Error: No command specified for container " + name
+      self.log.error('No command specified in configuration')   
+      exit(1)  
+      #self.config['command'] = '/bin/true'
     
     self.docker_client = docker.Client()
     
