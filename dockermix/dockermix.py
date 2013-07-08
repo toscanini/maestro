@@ -24,6 +24,14 @@ class ContainerMix:
   def build(self):
     for container in self.config['containers']:
       #TODO: confirm base_image exists
+      if not self.config['containers'][container]:
+        sys.stderr.write("Error: no configuration found for container: " + container + "\n")
+        exit(1)
+
+      if 'base_image' not in self.config['containers'][container]:
+        sys.stderr.write("Error: no base image specified for container: " + container)
+        exit(1)
+
       base = self.config['containers'][container]['base_image']
         
       self.log.info('Building container: %s using base template %s', container, base)
@@ -119,8 +127,7 @@ class Container:
       self.build_tag = name + '-' + str(os.getpid())
 
     if 'command' not in self.config:
-      # TODO: this should probably raise an error rather than default.
-      print "Error: No command specified for container " + name
+      sys.stderr.write("Error: No command specified for container " + name + "\n")
       self.log.error('No command specified in configuration')   
       exit(1)  
       #self.config['command'] = '/bin/true'
