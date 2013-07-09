@@ -27,17 +27,13 @@ Then:
 Configuration File Format
 =========================
 
-YAML format basically maps to the docker-py api. Here's an example yaml file:
+YAML format basically maps to the docker-py api. 
 
 `base_image` is the Docker container to use to run the command. It must already exist on the system and won't be pulled automatically.
 
 `base_image` and `command` are the only required options. 
 
-*Note: Command is required by the Docker Python api and having to specify it here can cause problems with images that pre-define entrypoints and commands.*
-
-*Note: the syntax for volumes is not fully specified and bind mounts are not currently supported.*
-
-*Note 2: There is basic support for embedding dockerfiles in the specification but the details of how that works is going to change. It's also currently limited to docker builder implementation that's part of docker-py and doesn't align with the current state of the Docker Builder documentation.*
+Here's an example yaml file:
 
 ```
   containers:
@@ -65,36 +61,36 @@ YAML format basically maps to the docker-py api. Here's an example yaml file:
       command: 'ls -l'
 ```
 
+**Note:** *Command is required by the Docker Python api and having to specify it here can cause problems with images that pre-define entrypoints and commands.*
+
+**Note:** *the syntax for volumes is not fully specified and bind mounts are not currently supported.*
+
+**Note:** *There is basic support for embedding dockerfiles in the specification but the details of how that works is going to change. It's also currently limited to docker builder implementation that's part of docker-py and doesn't align with the current state of the Docker Builder documentation.*
+
 Command Line Tools
 ===
 
-Initial enironments are defined in `dockermix.yml`. If there is a `dockermix.yml` in the current directory it will be automatically used otherwise the `-f` option can be used to specify the location of the file.
+The command line tool is called `dockermix` and initial enironments are defined in `dockermix.yml`. If there is a `dockermix.yml` in the current directory it will be automatically used otherwise the `-f` option can be used to specify the location of the file.
 
 The environment state will be saved to a file named `environment.yml` and commands that manipulate existing environments will look for an `environment.yml` in the current directory or it can be specified by the `-e` option.
 
-dockermix build
-----
+`dockermix build`
 
 Setup a new environment using a `dockermix.yml` specification.
 
-dockermix start
-----
+`dockermix start`
 
-Start an existing environment that had been previously stopped and save in `environment.yml`
+Start an existing environment that had been previously stopped and saved in `environment.yml`
 
-dockermix stop
-----
+`dockermix stop`
 
 Stop all containers in an environment and save the state to `environment.yml`
 
-
-dockermix destroy
-----
+`dockermix destroy`
 
 Destroy all containers defined in an environment. Once destroyed the containers can not be recoved.
 
-dockermix status
-----
+`dockermix status`
 
 Show the status of the containers in an environment.
 
