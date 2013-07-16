@@ -4,9 +4,24 @@ import logging
 import dockermix
 from requests.exceptions import HTTPError
 
+
+def _setupLogging():
+  log = logging.getLogger('dockermix')
+  log.setLevel(logging.DEBUG)
+
+  formatter = logging.Formatter("%(asctime)s %(levelname)-10s %(message)s")
+  filehandler = logging.FileHandler('dockermix.log', 'w')
+  filehandler.setLevel(logging.DEBUG)
+  filehandler.setFormatter(formatter)
+  log.addHandler(filehandler)  
+  return log
+
+class ContainerError(Exception):
+  pass
+
 class ContainerMix:
   def __init__(self, conf_file=None, environment=None):
-    self._setupLogging()
+    self.log = _setupLogging()
     self.containers = {}
     
     if environment:
@@ -118,58 +133,48 @@ class ContainerMix:
 
     return yaml.dump(result, Dumper=yaml.SafeDumper)
 
-  def _setupLogging(self):
-    self.log = logging.getLogger('dockermix')
-    self.log.setLevel(logging.DEBUG)
-
-    formatter = logging.Formatter("%(asctime)s %(levelname)-10s %(message)s")
-    filehandler = logging.FileHandler('dockermix.log', 'w')
-    filehandler.setLevel(logging.DEBUG)
-    filehandler.setFormatter(formatter)
-    self.log.addHandler(filehandler)  
-
-
 class Container:
-  def __init__(self, name, config={}, build_tag=None):
-    self.log = logging.getLogger('dockermix')
+  def __init__(self, name, container_desc={}):
+    self.log = _setupLogging()
+    
+    if 'config' not in container_desc:
+      raise ContainerError('No Docker configuration parameters found.')
 
-    self.config = config
+    self.desc = container_desc
+    self.config = container_desc['config']
+
     self.name = name
     
-    self.build_tag = build_tag
-    if not build_tag:
-      self.build_tag = name + '-' + str(os.getpid())
+    self.build_tag = name + '-' + str(os.getpid())
 
     if 'command' not in self.config:
-      sys.stderr.write("Error: No command specified for container " + name + "\n")
-      self.log.error('No command specified in configuration')   
-      exit(1)  
-      #self.config['command'] = '/bin/true'
-    
+      self.log.error("Error: No command specified for container " + name + "\n")
+      raise ContainerError('No command specified in configuration') 
+      
     self.docker_client = docker.Client()
     
-    if 'base_image' not in self.config:
-      self.config['base_image'] = 'ubuntu'
+    if 'base_image' not in self.desc:
+      self.desc['base_image'] = 'ubuntu'
       
   def build(self, dockerfile=None):
     if dockerfile:        
       self._build_container(dockerfile)
     else:
       # If there's no dockerfile then we're just launching an empty base    
-      self.config['image_id'] = self.config['base_image']
+      self.desc['image_id'] = self.desc['base_image']
     
     self._start_container()
     
   def destroy(self):
     self.stop()
-    self.docker_client.remove_container(self.config['container_id'])    
+    self.docker_client.remove_container(self.desc['container_id'])    
     self.docker_client.remove_image(self.build_tag)
 
   def start(self):
-    self.docker_client.start(self.config['container_id'])
+    self.docker_client.start(self.desc['container_id'])
   
   def stop(self):
-    self.docker_client.stop(self.config['container_id'])
+    self.docker_client.stop(self.desc['container_id'])
     
   def _build_container(self, dockerfile):
     # Build the container
@@ -177,16 +182,16 @@ class Container:
     # Commented out until my pull request to add logger configuration gets merged into docker-py
     #result = self.docker_client.build(dockerfile.split('\n'), logger=self.log)
     
-    self.config['image_id'] = result[0]
+    self.desc['image_id'] = result[0]
     
     # Tag the container with the name and process id
-    self.docker_client.tag(self.config['image_id'], self.build_tag)
+    self.docker_client.tag(self.desc['image_id'], self.build_tag)
     self.log.info('Container registered with tag: %s', self.build_tag)      
 
   def _start_container(self):
     # Start the container
-    clean_config = self._clean_config(self.config, ['image_id', 'base_image', 'dockerfile'])
-    self.config['container_id'] = self.docker_client.create_container(self.config['image_id'], **clean_config)['Id']
+    #clean_config = self._clean_config(self.config, ['image_id', 'base_image', 'dockerfile'])
+    self.desc['container_id'] = self.docker_client.create_container(self.desc['image_id'], **self.config)['Id']
     
     self.start()
 
