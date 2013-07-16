@@ -16,7 +16,21 @@ class ContainerMix:
         conf_file = os.path.join(os.path.dirname(sys.argv[0]), conf_file)
 
       data = open(conf_file, 'r')
-      self.config = yaml.load(data)      
+      self.config = yaml.load(data)
+      # On load order containers into the proper startup sequence
+        # Walk the list of containers
+          # Any container that doesn't have a require goes at the top of the stack
+          # Any container that does have a require goes below the container it requires
+          # Watch for containers that depend on them self
+          # Look for containers that can be started in parallel
+        # If a require fails then the environment should be unwound
+          # there should be an override for this
+        # Also dockermix commands should be separated from docker commands
+        # Loading could be complex with lots of dependencies 
+        # Will need to check for circular dependencies
+      # Create a way to wait for a container to be running.
+        # Will need the IP and Port pair to check for
+        # Polling should be limited to a set time or poll count      
 
   def get(self, container):
     return self.containers[container]

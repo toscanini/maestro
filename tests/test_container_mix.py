@@ -80,6 +80,35 @@ class TestContainer(unittest.TestCase):
     self._configCheck(env)  
 
   #@unittest.skip("skipping")
+  def testRequire(self):
+    mix = dockermix.ContainerMix('dockermix-require.yml')
+    mix.build()
+    
+    # Need to verify that containers start in the correct order
+    # test_container_2 should start before test_container_1
+    # The proper sequence should apply on both build and load
+    # Shutdown sequence should also respect order in reverse
+    env = yaml.load(mix.dump())    
+    for container in env['containers']:
+      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
+      
+      #Verify the containers are running
+      self.assertTrue(state['State']['Running'])
+      self.assertEqual(state['State']['ExitCode'], 0)
+    
+    mix.stop()
+    env = yaml.load(mix.dump())    
+    
+    for container in env['containers']:
+      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
+      
+      #Verify the containers are stopped 
+      self.assertFalse(state['State']['Running'])
+      self.assertNotEqual(state['State']['ExitCode'], 0)
+
+    mix.destroy()
+
+  #@unittest.skip("skipping")
   def testStop(self):
     mix = dockermix.ContainerMix('dockermix-startstop.yml')
     mix.build()

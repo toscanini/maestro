@@ -1,7 +1,8 @@
 containers:
   test_server_1: 
     base_image: ubuntu
-    command: ps aux
+    config:
+      command: ps aux
     buildspec: 
       dockerfile: |
         FROM ubuntu
@@ -13,7 +14,8 @@ containers:
 
   test_server_2: 
     base_image: ubuntu
-    command: 'ls -l'    
+    config:
+      command: 'ls -l'    
     buildspec:
       url: https://raw.github.com/kstaken/dockerfile-examples/master/nodejs.docker
       tags:
