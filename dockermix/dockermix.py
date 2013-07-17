@@ -1,5 +1,5 @@
 import docker
-import os, sys, time, subprocess, yaml, shutil, copy, socket
+import os, sys, time, subprocess, yaml, shutil, copy, socket, StringIO
 import logging
 import dockermix
 from requests.exceptions import HTTPError
@@ -100,20 +100,26 @@ class ContainerMix:
         sys.stderr.write("Error: no configuration found for container: " + container + "\n")
         exit(1)
 
-      if 'base_image' not in self.config['containers'][container]:
+      config = self.config['containers'][container]
+      if 'base_image' not in config:
         sys.stderr.write("Error: no base image specified for container: " + container)
         exit(1)
 
-      base = self.config['containers'][container]['base_image']
+      base = config['base_image']
 
       self._handleRequire(container, wait_time)
                         
       self.log.info('Building container: %s using base template %s', container, base)
       
-      build = Container(container, self.config['containers'][container])
+      build = Container(container, config)
       dockerfile = None
-      if 'dockerfile' in self.config['containers'][container]:
-        dockerfile = self.config['containers'][container]['dockerfile']
+      if 'buildspec' in config:
+        if 'dockerfile' in config['buildspec']:      
+          dockerfile = config['buildspec']['dockerfile']
+        if 'url' in config['buildspec']:  
+          # TODO: this doesn't do anything yet
+          dockerfile_url = config['buildspec']['url']
+
       build.build(dockerfile)
 
       self.containers[container] = build
@@ -189,6 +195,7 @@ class ContainerMix:
       # Containers can depend on mulitple services
       for service in self.config['containers'][container]['require']:
         port = self.config['containers'][container]['require'][service]
+
         # Based on start_order the service should already be running
         service_ip = self.containers[service].get_ip_address()
         self.log.info('Starting %s: waiting for service %s on ip %s and port %s', container, service, service_ip, port)            
@@ -251,7 +258,7 @@ class Container:
 
   def _build_container(self, dockerfile):
     # Build the container
-    result = self.docker_client.build(dockerfile.split('\n'))
+    result = self.docker_client.build(fileobj=StringIO.StringIO(dockerfile))
     # Commented out until my pull request to add logger configuration gets merged into docker-py
     #result = self.docker_client.build(dockerfile.split('\n'), logger=self.log)
     

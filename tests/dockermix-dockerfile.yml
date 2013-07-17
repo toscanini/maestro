@@ -2,21 +2,19 @@ containers:
   test_server_1: 
     base_image: ubuntu
     config:
-      command: ps aux
+      command: ns -l 8080 -k
     buildspec: 
       dockerfile: |
         FROM ubuntu
-        MAINTAINER Kimbro Staken "kstaken@kstaken.com"
-
+        
         RUN apt-get update
-        RUN apt-get -y install bash
-        CMD = ["/bin/bash"]   
-
+        RUN apt-get -y install netcat
+        
   test_server_2: 
     base_image: ubuntu
     config:
       command: 'ls -l'    
     buildspec:
-      url: https://raw.github.com/kstaken/dockerfile-examples/master/nodejs.docker
+      url: https://raw.github.com/kstaken/dockerfile-examples/master/nodejs/Dockerfile
       tags:
         - kstaken/test_server_2

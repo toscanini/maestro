@@ -17,7 +17,7 @@ class TestContainer(unittest.TestCase):
     env = yaml.load(self.mix.dump())
     self._configCheck(env)   
 
-  @unittest.skip("Skipping")
+  #@unittest.skip("Skipping")
   def testBuildDockerfile(self):
     mix = dockermix.ContainerMix('dockermix-dockerfile.yml')
     mix.build()
@@ -33,13 +33,13 @@ class TestContainer(unittest.TestCase):
 
       if container == 'test_server_1':
         self.assertNotEqual(state['Config']['Image'], 'ubuntu')
-        self.assertEqual(state['Path'], 'ps')
-        self.assertEqual(state['Args'][0], 'aux')
+        self.assertEqual(state['Path'], 'ns')
+        self.assertEqual(state['Args'][0], '-l')
         
-      elif container == 'test_server_2':
-        self.assertEqual(state['Config']['Image'], 'ubuntu')
-        self.assertEqual(state['Path'], 'ls')
-        self.assertEqual(state['Args'][0], '-l')  
+      #elif container == 'test_server_2':
+      #  self.assertNotEqual(state['Config']['Image'], 'ubuntu')
+       # self.assertEqual(state['Path'], 'ls')
+       # self.assertEqual(state['Args'][0], '-l')  
         
   
   #@unittest.skip("skipping")
@@ -72,7 +72,7 @@ class TestContainer(unittest.TestCase):
 
       self.assertEqual(str(e.exception), '404 Client Error: Not Found')
   
- # @unittest.skip("skipping")  
+  #@unittest.skip("skipping")  
   def testSave(self):
     self.mix.save()
     with open('environment.yml', 'r') as input_file:
