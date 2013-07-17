@@ -8,6 +8,14 @@ class TestContainer(unittest.TestCase):
     with self.assertRaises(dockermix.ContainerError) as e:
         dockermix.Container('test_container', {})
 
+  def testGetIpAddress(self):
+    container = dockermix.Container('test_container', {'config': {'command': 'ps aux'}})
+
+    container.build()
+
+    self.assertIsNotNone(container.desc['container_id'])    
+    self.assertIsNotNone(container.get_ip_address())
+
   def testBuild(self):
     container = dockermix.Container('test_container', {'config': {'command': 'ps aux'}})
 

@@ -1,5 +1,5 @@
 import docker
-import os, sys, time, subprocess, yaml, shutil, copy
+import os, sys, time, subprocess, yaml, shutil, copy, socket
 import logging
 import dockermix
 from requests.exceptions import HTTPError
@@ -15,6 +15,60 @@ def _setupLogging():
   filehandler.setFormatter(formatter)
   log.addHandler(filehandler)  
   return log
+
+def order(raw_list):
+  def _process(wait_list):
+    new_wait = []
+    for item in wait_list:
+      match = False
+      for dependency in raw_list[item]['require']:
+        if dependency in ordered_list:
+          match = True  
+        else:
+          match = False
+          break
+
+      if match:
+        ordered_list.append(item)
+      else:
+        new_wait.append(item)
+
+    if len(new_wait) > 0:
+      # Guard against circular dependencies
+      if len(new_wait) == len(wait_list):
+        raise Exception("Unable to satisfy the require for: " + item)
+
+      # Do it again for any remaining items
+      _process(new_wait)
+
+  ordered_list = []
+  wait_list = []
+  # Start by building up the list of items that do not have any dependencies
+  for item in raw_list:  
+    if 'require' not in raw_list[item]:
+      ordered_list.append(item)
+    else:
+      wait_list.append(item)
+
+  # Then recursively order the items that do define dependencies
+  _process(wait_list)
+
+  return ordered_list
+
+def waitForService(ip, port, retries=60):      
+  while retries >= 0:
+    try:        
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1)
+        s.connect((ip, port))
+        s.close()
+        break
+    except:
+      time.sleep(0.5)
+      retries = retries - 1
+      continue
+    
+  return retries
 
 class ContainerError(Exception):
   pass
@@ -32,12 +86,10 @@ class ContainerMix:
 
       data = open(conf_file, 'r')
       self.config = yaml.load(data)
-      # On load order containers into the proper startup sequence
-        # Walk the list of containers
-          # Any container that doesn't have a require goes at the top of the stack
-          # Any container that does have a require goes below the container it requires
-          # Watch for containers that depend on them self
-          # Look for containers that can be started in parallel
+      
+      # On load order containers into the proper startup sequence      
+      self.start_order = order(self.config['containers'])
+
         # If a require fails then the environment should be unwound
           # there should be an override for this
         # Also dockermix commands should be separated from docker commands
@@ -50,8 +102,8 @@ class ContainerMix:
   def get(self, container):
     return self.containers[container]
 
-  def build(self):
-    for container in self.config['containers']:
+  def build(self, wait_time=60):
+    for container in self.start_order:
       #TODO: confirm base_image exists
       if not self.config['containers'][container]:
         sys.stderr.write("Error: no configuration found for container: " + container + "\n")
@@ -62,7 +114,9 @@ class ContainerMix:
         exit(1)
 
       base = self.config['containers'][container]['base_image']
-        
+
+      self._handleRequire(container, wait_time)
+                        
       self.log.info('Building container: %s using base template %s', container, base)
       
       build = Container(container, self.config['containers'][container])
@@ -74,16 +128,21 @@ class ContainerMix:
       self.containers[container] = build
       
   def destroy(self):
-    for container in self.containers:
+    for container in reversed(self.start_order):
       self.log.info('Destroying container: %s', container)      
       self.containers[container].destroy()     
 
-  def start(self):
-    for container in self.containers:      
+  def start(self, wait_time=60):
+    for container in self.start_order:
+      self.log.info('Starting container: %s', container)      
+      
+      self._handleRequire(container, wait_time)
+      
       self.containers[container].start()
 
   def stop(self):
-    for container in self.containers:      
+    for container in reversed(self.start_order):      
+      self.log.info('Stopping container: %s', container)      
       self.containers[container].stop()
 
   def load(self, filename='envrionment.yml'):
@@ -105,7 +164,7 @@ class ContainerMix:
     columns = "{0:<14}{1:<19}{2:<34}{3:<11}\n" 
     result = columns.format("ID", "NODE", "COMMAND", "STATUS")
     for container in self.containers:
-      container_id = self.containers[container].config['container_id']
+      container_id = self.containers[container].desc['container_id']
       
       node_name = (container[:15] + '..') if len(container) > 17 else container
 
@@ -129,10 +188,27 @@ class ContainerMix:
     result = {}
     result['containers'] = {}
     for container in self.containers:      
-      output = result['containers'][container] = self.containers[container].config
+      output = result['containers'][container] = self.containers[container].desc
 
     return yaml.dump(result, Dumper=yaml.SafeDumper)
 
+  def _handleRequire(self, container, wait_time):
+    # Wait for any required services to finish registering        
+    if 'require' in self.config['containers'][container]:
+      # Containers can depend on mulitple services
+      for service in self.config['containers'][container]['require']:
+        port = self.config['containers'][container]['require'][service]
+        # Based on start_order the service should already be running
+        service_ip = self.containers[service].get_ip_address()
+        self.log.info('Starting %s: waiting for service %s on ip %s and port %s', container, service, service_ip, port)            
+        
+        result = waitForService(service_ip, int(port), wait_time)
+        if result < 0:
+          self.log.error('Never found service %s on port %s', service, port)
+          self.log.error('Shutting down the environment')
+          self.destroy()
+          raise ContainerError("Couldn't find required services, shutting down")
+    
 class Container:
   def __init__(self, name, container_desc={}):
     self.log = _setupLogging()
@@ -176,6 +252,12 @@ class Container:
   def stop(self):
     self.docker_client.stop(self.desc['container_id'])
     
+  def get_ip_address(self):
+    container_id = self.desc['container_id']
+      
+    state = docker.Client().inspect_container(container_id)    
+    return state['NetworkSettings']['IPAddress']
+
   def _build_container(self, dockerfile):
     # Build the container
     result = self.docker_client.build(dockerfile.split('\n'))
@@ -190,16 +272,8 @@ class Container:
 
   def _start_container(self):
     # Start the container
-    #clean_config = self._clean_config(self.config, ['image_id', 'base_image', 'dockerfile'])
     self.desc['container_id'] = self.docker_client.create_container(self.desc['image_id'], **self.config)['Id']
     
     self.start()
 
-    self.log.info('Container started: %s', self.build_tag)     
-
-  # Get rid of unused keys so that we can do parameter expansion
-  def _clean_config(self, config, keys):
-    result = copy.deepcopy(config) 
-    for key in keys:
-      result.pop(key, None)
-    return result
+    self.log.info('Container started: %s %s', self.build_tag, self.desc['container_id'])     

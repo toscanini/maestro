@@ -4,7 +4,7 @@ containers:
     config:
       ports: 
         - '8080' 
-      command: '/bin/bash -c "while true; do echo hello world; sleep 60; done;"' 
+      command: '/bin/bash -c "apt-get install netcat ; nc -l 8080 -k"' 
       hostname: test_server_1 
       detach: true
     require:
@@ -14,7 +14,7 @@ containers:
     config:
       ports: 
         - '8080' 
-      command: '/bin/bash -c "while true; do echo hello world; sleep 60; done;"' 
+      command: '/bin/bash -c "apt-get install netcat ; nc -l 8080 -k"' 
       hostname: test_server_2
       detach: true
   test_server_3: 
@@ -22,7 +22,7 @@ containers:
     config:
       ports: 
         - '8080' 
-      command: '/bin/bash -c "while true; do echo hello world; sleep 60; done;"' 
+      command: '/bin/bash -c "apt-get install netcat ; nc -l 8080 -k"' 
       hostname: test_server_2
       detach: true
     require:
