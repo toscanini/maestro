@@ -3,6 +3,11 @@ dockermix
 
 A command line tool to build and manage multi-container docker environments. Allows you to build/start/stop and destory containers as a set with full Docker configuration. Container sets are defined in a simple YAML format that mirrors the options available in the Docker API.
 
+Status
+======
+
+Early development. Certainly lots of bugs and not quite useful yet but getting close.
+
 Dependencies
 =============
 
@@ -33,32 +38,38 @@ YAML format basically maps to the docker-py api.
 
 `base_image` and `command` are the only required options. 
 
+You can use `require` to specify dependencies between services. The start order will be adjusted and any container that requires a port on a another container will wait for that port to become available before starting.
+
 Here's an example yaml file:
 
 ```
   containers:
-    test_server_1: 
+    test_server_1:
       base_image: ubuntu
-      ports: 
-        - '8080' 
-      command: 'ps aux' 
-      hostname: test_server_1 
-      user: root
-      detach: true
-      stdin_open: true
-      tty: true
-      mem_limit: 2560000
-      environment: 
-        - ENV_VAR=testing
-      dns: 
-        - 8.8.8.8
-        - 8.8.4.4
-      volumes: 
-        /var/testing: {}
-            
+      config:
+        ports: 
+          - '8080' 
+        command: '/bin/bash -c "apt-get install netcat ; nc -l 8080 -k"' 
+        hostname: test_server_1 
+        user: root
+        detach: true
+        stdin_open: true
+        tty: true
+        mem_limit: 2560000
+        environment: 
+          - ENV_VAR=testing
+        dns: 
+          - 8.8.8.8
+          - 8.8.4.4
+        volumes: 
+          /var/testing: {}
+              
     test_server_2: 
       base_image: ubuntu
-      command: 'ls -l'
+      config:
+        command: 'ls -l'
+      require
+        test_server_1: 8080 
 ```
 
 **Note:** *Command is required by the Docker Python api and having to specify it here can cause problems with images that pre-define entrypoints and commands.*
@@ -99,7 +110,7 @@ Roadmap
 
 - Bootstrap installer
 - Add the ability to share configuration data between containers
-- Explicitly specify startup order and dependencies
+- ~~Explicitly specify startup order and dependencies~~
 - More powerful Docker Builder support (currently docker-py reimplements Docker Builder and it out of sync with the server implementation)
 - Add automatic pulling of base images
 - Make it easier to run the full test suite
