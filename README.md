@@ -76,7 +76,7 @@ Here's an example yaml file:
 
 **Note:** *the syntax for volumes is not fully specified and bind mounts are not currently supported.*
 
-**Note:** *There is basic support for embedding dockerfiles in the specification but the details of how that works is going to change. It's also currently limited to docker builder implementation that's part of docker-py and doesn't align with the current state of the Docker Builder documentation.*
+**Note:** *There is basic support for embedding dockerfiles in the specification but the details of how that works is going to change.*
 
 Command Line Tools
 ===
@@ -111,7 +111,7 @@ Roadmap
 - Bootstrap installer
 - Add the ability to share configuration data between containers
 - ~~Explicitly specify startup order and dependencies~~
-- More powerful Docker Builder support (currently docker-py reimplements Docker Builder and it out of sync with the server implementation)
+- More powerful Docker Builder support ~~(currently docker-py reimplements Docker Builder and it out of sync with the server implementation)~~
 - Add automatic pulling of base images
 - Make it easier to run the full test suite
 - ...
