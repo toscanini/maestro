@@ -1,0 +1,18 @@
+containers:
+  nodejs: 
+    base_image: kstaken/nodejs
+    config:
+      command: /usr/bin/node /var/www/app.js
+      detach: true
+      ports: 
+        - '80'  
+      environment:
+        - PORT=80
+    require:
+      mongodb: '27017'
+  mongodb:     
+    base_image: kstaken/mongodb
+    config:
+      command: /usr/bin/mongod --config /etc/mongodb.conf
+      detach: true
+      
