@@ -8,7 +8,8 @@ containers:
       hostname: test_server_1 
       detach: true
     require:
-      test_server_2: '8080'
+      test_server_2:
+        port: '8080'
   test_server_2: 
     base_image: ubuntu
     config:
@@ -26,4 +27,5 @@ containers:
       hostname: test_server_2
       detach: true
     require:
-      test_server_1: '8080'
+      test_server_1:
+        port: '8080'

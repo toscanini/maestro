@@ -124,20 +124,39 @@ class ContainerMix:
 
     return yaml.dump(result, Dumper=yaml.SafeDumper)
 
+  def _pollService(self, container, service, port, wait_time):
+    # Based on start_order the service should already be running
+    service_ip = self.containers[service].get_ip_address()
+    self.log.info('Starting %s: waiting for service %s on ip %s and port %s', container, service, service_ip, port)            
+    
+    result = utils.waitForService(service_ip, int(port), wait_time)
+    if result < 0:
+      self.log.error('Never found service %s on port %s', service, port)
+      raise ContainerError("Couldn't find required services, aborting")
+
   def _handleRequire(self, container, wait_time):
     # Wait for any required services to finish registering        
-    if 'require' in self.config['containers'][container]:
-      # Containers can depend on mulitple services
-      for service in self.config['containers'][container]['require']:
-        port = self.config['containers'][container]['require'][service]
+    config = self.config['containers'][container]
+    if 'require' in config:
+      #try:
+        # Containers can depend on mulitple services
+        for service in config['require']:
+          port = config['require'][service]['port']
+  
+          count = config['require'][service].get('count', 1)
+          
+          if port:
+            # If count is defined then we need to wait for all instances to start                    
+            if count > 1:
+              while count > 0:
+                name = service + "__" + count
+                self._pollService(container, service, port, wait_time)
+                count = count - 1
+            else:
+              self._pollService(container, service, port, wait_time)
 
-        # Based on start_order the service should already be running
-        service_ip = self.containers[service].get_ip_address()
-        self.log.info('Starting %s: waiting for service %s on ip %s and port %s', container, service, service_ip, port)            
+      #except:
+      #  self.log.error('Failure on require. Shutting down the environment')
+      #  self.destroy()
+      #  raise
         
-        result = utils.waitForService(service_ip, int(port), wait_time)
-        if result < 0:
-          self.log.error('Never found service %s on port %s', service, port)
-          self.log.error('Shutting down the environment')
-          self.destroy()
-          raise ContainerError("Couldn't find required services, shutting down")

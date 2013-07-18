@@ -12,7 +12,8 @@ containers:
       environment:
         - PORT=80
     require:
-      mongodb: '27017'
+      mongodb: 
+        port: '27017'
   mongodb:     
     base_image: kstaken/mongodb
     config:

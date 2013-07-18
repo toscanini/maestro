@@ -1,0 +1,18 @@
+containers:
+  service1: 
+    base_image: ubuntu
+    count: 3
+    config:
+      command: '/bin/bash -c "while true; do echo hello world; sleep 60; done;"'  
+      detach: true    
+  service_post: 
+    base_image: ubuntu
+    config:
+      command: '/bin/bash -c "while true; do echo hello world; sleep 60; done;"' 
+      detach: true
+    require:
+      service:
+        name: service1
+        count: 3
+        port: 8080
+    
