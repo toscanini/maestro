@@ -81,6 +81,26 @@ class TestContainer(unittest.TestCase):
     self._configCheck(env)  
 
   #@unittest.skip("skipping")
+  def testCount(self):
+    mix = dockermix.ContainerMix('dockermix-count.yml')
+        
+    mix.build()
+    
+    # Verify that all three services are running
+    env = yaml.load(mix.dump())    
+    
+    self.assertEqual(len(env), 4)
+
+    for container in env['containers']:
+      state = docker.Client().inspect_container(env['containers'][container]['container_id'])
+      
+      #Verify the containers are running
+      self.assertTrue(state['State']['Running'])
+      self.assertEqual(state['State']['ExitCode'], 0)
+    
+    mix.destroy()
+
+  @unittest.skip("skipping")
   def testRequire(self):
     mix = dockermix.ContainerMix('dockermix-require.yml')
     

@@ -144,13 +144,13 @@ class ContainerMix:
           port = config['require'][service]['port']
   
           count = config['require'][service].get('count', 1)
-          
+          print count
           if port:
             # If count is defined then we need to wait for all instances to start                    
             if count > 1:
               while count > 0:
-                name = service + "__" + count
-                self._pollService(container, service, port, wait_time)
+                name = service + "__" + str(count)
+                self._pollService(container, name, port, wait_time)
                 count = count - 1
             else:
               self._pollService(container, service, port, wait_time)

@@ -11,8 +11,7 @@ containers:
       command: '/bin/bash -c "while true; do echo hello world; sleep 60; done;"' 
       detach: true
     require:
-      service:
-        name: service1
+      service1:
         count: 3
         port: 8080
     
