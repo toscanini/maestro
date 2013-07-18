@@ -42,7 +42,7 @@ class ContainerMix:
       base = config['base_image']
 
       self._handleRequire(container, wait_time)
-                        
+      
       # If count is defined in the config then we're launching multiple instances of the same thing
       # and they'll need to be tagged accordingly. Count only applies on build.
       count = tag_name = 1
@@ -145,13 +145,17 @@ class ContainerMix:
       self.log.error('Never found service %s on port %s', service, port)
       raise ContainerError("Couldn't find required services, aborting")
 
+    return service_ip + ":" + str(port)
+
   def _handleRequire(self, container, wait_time):
+    env = []
     # Wait for any required services to finish registering        
     config = self.config['containers'][container]
     if 'require' in config:
       try:
         # Containers can depend on mulitple services
         for service in config['require']:
+          service_env = []
           port = config['require'][service]['port']          
           if port:
             # If count is defined then we need to wait for all instances to start                    
@@ -159,13 +163,21 @@ class ContainerMix:
             if count > 1:
               while count > 0:
                 name = service + "__" + str(count)
-                self._pollService(container, name, port, wait_time)
-                count = count - 1
+                service_env.append(self._pollService(container, name, port, wait_time))
+                count = count - 1                
             else:
               self._pollService(container, service, port, wait_time)
 
+            env.append(service.upper() + "=" + " ".join(service_env))
       except:
         self.log.error('Failure on require. Shutting down the environment')
         self.destroy()
         raise
-        
+      print env
+      # Setup the env for dependent services
+      if 'environment' in config['config']:
+        config['config']['environment'].append(env)
+      else:
+        config['config']['environment'] = env
+    
+      print config
