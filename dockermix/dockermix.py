@@ -1,81 +1,16 @@
 import docker
-import os, sys, time, subprocess, yaml, shutil, copy, socket, StringIO
-import logging
+import os, sys, yaml, StringIO
 import dockermix
 from requests.exceptions import HTTPError
-
-
-def _setupLogging():
-  log = logging.getLogger('dockermix')
-  log.setLevel(logging.DEBUG)
-
-  formatter = logging.Formatter("%(asctime)s %(levelname)-10s %(message)s")
-  filehandler = logging.FileHandler('dockermix.log', 'w')
-  filehandler.setLevel(logging.DEBUG)
-  filehandler.setFormatter(formatter)
-  log.addHandler(filehandler)  
-  return log
-
-def order(raw_list):
-  def _process(wait_list):
-    new_wait = []
-    for item in wait_list:
-      match = False
-      for dependency in raw_list[item]['require']:
-        if dependency in ordered_list:
-          match = True  
-        else:
-          match = False
-          break
-
-      if match:
-        ordered_list.append(item)
-      else:
-        new_wait.append(item)
-
-    if len(new_wait) > 0:
-      # Guard against circular dependencies
-      if len(new_wait) == len(wait_list):
-        raise Exception("Unable to satisfy the require for: " + item)
-
-      # Do it again for any remaining items
-      _process(new_wait)
-
-  ordered_list = []
-  wait_list = []
-  # Start by building up the list of items that do not have any dependencies
-  for item in raw_list:  
-    if 'require' not in raw_list[item]:
-      ordered_list.append(item)
-    else:
-      wait_list.append(item)
-
-  # Then recursively order the items that do define dependencies
-  _process(wait_list)
-
-  return ordered_list
-
-def waitForService(ip, port, retries=60):      
-  while retries >= 0:
-    try:        
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(1)
-        s.connect((ip, port))
-        s.close()
-        break
-    except:
-      time.sleep(0.5)
-      retries = retries - 1
-      continue
-    
-  return retries
+from .container import Container
+import utils
 
 class ContainerError(Exception):
   pass
 
 class ContainerMix:
   def __init__(self, conf_file=None, environment=None):
-    self.log = _setupLogging()
+    self.log = utils._setupLogging()
     self.containers = {}
     
     if environment:
@@ -88,7 +23,7 @@ class ContainerMix:
       self.config = yaml.load(data)
       
       # On load order containers into the proper startup sequence      
-      self.start_order = order(self.config['containers'])
+      self.start_order = utils.order(self.config['containers'])
 
   def get(self, container):
     return self.containers[container]
@@ -200,78 +135,9 @@ class ContainerMix:
         service_ip = self.containers[service].get_ip_address()
         self.log.info('Starting %s: waiting for service %s on ip %s and port %s', container, service, service_ip, port)            
         
-        result = waitForService(service_ip, int(port), wait_time)
+        result = utils.waitForService(service_ip, int(port), wait_time)
         if result < 0:
           self.log.error('Never found service %s on port %s', service, port)
           self.log.error('Shutting down the environment')
           self.destroy()
           raise ContainerError("Couldn't find required services, shutting down")
-    
-class Container:
-  def __init__(self, name, container_desc={}):
-    self.log = _setupLogging()
-    
-    if 'config' not in container_desc:
-      raise ContainerError('No Docker configuration parameters found.')
-
-    self.desc = container_desc
-    self.config = container_desc['config']
-
-    self.name = name
-    
-    self.build_tag = name + '-' + str(os.getpid())
-
-    if 'command' not in self.config:
-      self.log.error("Error: No command specified for container " + name + "\n")
-      raise ContainerError('No command specified in configuration') 
-      
-    self.docker_client = docker.Client()
-    
-    if 'base_image' not in self.desc:
-      self.desc['base_image'] = 'ubuntu'
-      
-  def build(self, dockerfile=None):
-    if dockerfile:        
-      self._build_container(dockerfile)
-    else:
-      # If there's no dockerfile then we're just launching an empty base    
-      self.desc['image_id'] = self.desc['base_image']
-    
-    self._start_container()
-    
-  def destroy(self):
-    self.stop()
-    self.docker_client.remove_container(self.desc['container_id'])    
-    self.docker_client.remove_image(self.build_tag)
-
-  def start(self):
-    self.docker_client.start(self.desc['container_id'])
-  
-  def stop(self):
-    self.docker_client.stop(self.desc['container_id'])
-    
-  def get_ip_address(self):
-    container_id = self.desc['container_id']
-      
-    state = docker.Client().inspect_container(container_id)    
-    return state['NetworkSettings']['IPAddress']
-
-  def _build_container(self, dockerfile):
-    # Build the container
-    result = self.docker_client.build(fileobj=StringIO.StringIO(dockerfile))
-    # Commented out until my pull request to add logger configuration gets merged into docker-py
-    #result = self.docker_client.build(dockerfile.split('\n'), logger=self.log)
-    
-    self.desc['image_id'] = result[0]
-    
-    # Tag the container with the name and process id
-    self.docker_client.tag(self.desc['image_id'], self.build_tag)
-    self.log.info('Container registered with tag: %s', self.build_tag)      
-
-  def _start_container(self):
-    # Start the container
-    self.desc['container_id'] = self.docker_client.create_container(self.desc['image_id'], **self.config)['Id']
-    
-    self.start()
-
-    self.log.info('Container started: %s %s', self.build_tag, self.desc['container_id'])     

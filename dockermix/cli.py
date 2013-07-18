@@ -1,6 +1,6 @@
 import sys, os
 import cmdln
-from dockermix import dockermix
+from . import dockermix
 
 class DockermixCli(cmdln.Cmdln):
     """Usage:
