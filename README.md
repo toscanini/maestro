@@ -12,12 +12,12 @@ Early development. Certainly lots of bugs and not quite useful yet but getting c
 Features
 ========
 
-Build/start/stop/destroy multi-container docker environments via simple commands
-Declarative YAML format to specify container configurations for the environment
-Easily launch multiple instances of the same container for testing cluster operations
-Specify dependencies between containers so they start in order and wait for services to become available
-Automatically configure dependent containers to know where to locate services from other containers in the same environment
-... Much more to come
+- Build/start/stop/destroy multi-container docker environments via simple commands
+- Declarative YAML format to specify container configurations for the environment
+- Easily launch multiple instances of the same container for testing cluster operations
+- Specify dependencies between containers so they start in order and wait for services to become available
+- Automatically configure dependent containers to know where to locate services from other containers in the same environment
+- ... Much more to come
 
 Dependencies
 =============
