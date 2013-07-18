@@ -3,12 +3,15 @@ containers:
     base_image: ubuntu
     count: 3
     config:
-      command: '/bin/bash -c "apt-get install netcat ; nc -l 8080 -k"' 
+      command: '/bin/bash -c "while true; do echo hello world; sleep 60; done;"'  
       detach: true    
   service_post: 
     base_image: ubuntu
     config:
-      command: '/bin/bash -c "apt-get install netcat ; nc -l 8080 -k"' 
+      command: '/bin/bash -c "while true; do echo hello world; sleep 60; done;"' 
       detach: true
-    --require:
-     -- test_server_1: '8080'
+    require:
+      container: service1
+      count: 3
+      port: 8080
+    

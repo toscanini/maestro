@@ -43,18 +43,19 @@ class ContainerMix:
 
       self._handleRequire(container, wait_time)
                         
-      self.log.info('Building container: %s using base template %s', container, base)
-      count = 1
-      tag_name = False
+      # If count is defined in the config then we're launching multiple instances of the same thing
+      # and they'll need to be tagged accordingly. Count only applies on build.
+      count = tag_name = 1
       if 'count' in config:
-        count = config['count']  
-        tag_name = True
-
-      while count > 0:
+        count = tag_name = config['count']  
+      
+      while count > 0:      
         name = container
-        if tag_name == True:
-          name = name + "_" + str(count)
+        if tag_name > 1:
+          name = name + "__" + str(count)
 
+        self.log.info('Building container: %s using base template %s', name, base)
+      
         build = Container(name, copy.deepcopy(config))
         dockerfile = None
         if 'buildspec' in config:
