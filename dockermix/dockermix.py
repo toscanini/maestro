@@ -173,11 +173,10 @@ class ContainerMix:
         self.log.error('Failure on require. Shutting down the environment')
         self.destroy()
         raise
-      print env
+      
       # Setup the env for dependent services
       if 'environment' in config['config']:
-        config['config']['environment'].append(env)
+        config['config']['environment'] += env
       else:
         config['config']['environment'] = env
     
-      print config
