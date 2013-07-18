@@ -6,7 +6,7 @@ A command line tool to build and manage multi-container docker environments. All
 Status
 ======
 
-Early development. Certainly lots of bugs and not quite useful yet but getting close.
+Early development. Certainly lots of bugs and not quite useful yet but getting close. The configuration format is changing heavily.
 
 Dependencies
 =============
@@ -69,7 +69,8 @@ Here's an example yaml file:
       config:
         command: 'ls -l'
       require
-        test_server_1: 8080 
+        test_server_1: 
+          port: '8080' 
 ```
 
 **Note:** *Command is required by the Docker Python api and having to specify it here can cause problems with images that pre-define entrypoints and commands.*
