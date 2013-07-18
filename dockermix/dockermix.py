@@ -166,7 +166,7 @@ class ContainerMix:
                 service_env.append(self._pollService(container, name, port, wait_time))
                 count = count - 1                
             else:
-              self._pollService(container, service, port, wait_time)
+              service_env.append(self._pollService(container, service, port, wait_time))
 
             env.append(service.upper() + "=" + " ".join(service_env))
       except:

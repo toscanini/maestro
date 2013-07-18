@@ -8,7 +8,7 @@ containers:
       command: /usr/bin/node /var/www/app.js
       detach: true
       ports: 
-        - '80'  
+        - '8100:80'  
       environment:
         - PORT=80
     require:

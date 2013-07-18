@@ -1,12 +1,23 @@
 dockermix
 ============
 
-A command line tool to build and manage multi-container docker environments. Allows you to build/start/stop and destory containers as a set with full Docker configuration. Container sets are defined in a simple YAML format that mirrors the options available in the Docker API.
+A command line tool to build and manage multi-container docker environments. Container sets are defined in a simple YAML format that mirrors the options available in the Docker API. The intention is to be able to easily launch, orchestrate and destroy complex multi-node envionments for testing and development.
+
 
 Status
 ======
 
-Early development. Certainly lots of bugs and not quite useful yet but getting close. The configuration format is changing heavily.
+Early development. Certainly lots of bugs and not quite useful yet but getting close. The configuration format in particular is changing heavily.
+
+Features
+========
+
+Build/start/stop/destroy multi-container docker environments via simple commands
+Declarative YAML format to specify container configurations for the environment
+Easily launch multiple instances of the same container for testing cluster operations
+Specify dependencies between containers so they start in order and wait for services to become available
+Automatically configure dependent containers to know where to locate services from other containers in the same environment
+... Much more to come
 
 Dependencies
 =============
@@ -115,4 +126,5 @@ Roadmap
 - More powerful Docker Builder support ~~(currently docker-py reimplements Docker Builder and it out of sync with the server implementation)~~
 - Add automatic pulling of base images
 - Make it easier to run the full test suite
+- Add external dependencies
 - ...

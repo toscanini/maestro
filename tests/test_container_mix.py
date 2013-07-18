@@ -12,12 +12,12 @@ class TestContainer(unittest.TestCase):
   def tearDown(self):
     self.mix.destroy()
   
-  @unittest.skip("skipping")  
+  #@unittest.skip("skipping")  
   def testBuild(self):
     env = yaml.load(self.mix.dump())
     self._configCheck(env)   
 
-  @unittest.skip("Skipping")
+  #@unittest.skip("Skipping")
   def testBuildDockerfile(self):
     mix = dockermix.ContainerMix('dockermix-dockerfile.yml')
     mix.build()
@@ -42,7 +42,7 @@ class TestContainer(unittest.TestCase):
        # self.assertEqual(state['Args'][0], '-l')  
         
   
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testPorts(self):
     env = yaml.load(self.mix.dump())
     self.mix.save()
@@ -58,7 +58,7 @@ class TestContainer(unittest.TestCase):
         # Shouldn't get here
         self.assertFalse(True)
   
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testDestroy(self):
     mix = dockermix.ContainerMix('dockermix.yml')
     mix.build()
@@ -72,7 +72,7 @@ class TestContainer(unittest.TestCase):
 
       self.assertEqual(str(e.exception), '404 Client Error: Not Found')
   
-  @unittest.skip("skipping")  
+  #@unittest.skip("skipping")  
   def testSave(self):
     self.mix.save()
     with open('environment.yml', 'r') as input_file:
@@ -96,7 +96,7 @@ class TestContainer(unittest.TestCase):
       
     mix.destroy()
   
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testCount(self):
     mix = dockermix.ContainerMix('dockermix-count.yml')
         
@@ -116,7 +116,7 @@ class TestContainer(unittest.TestCase):
     
     mix.destroy()
 
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testRequire(self):
     mix = dockermix.ContainerMix('dockermix-require.yml')
     
@@ -139,7 +139,7 @@ class TestContainer(unittest.TestCase):
     
     mix.destroy()
 
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testStop(self):
     mix = dockermix.ContainerMix('dockermix-startstop.yml')
     mix.build()
@@ -164,7 +164,7 @@ class TestContainer(unittest.TestCase):
 
     mix.destroy()
 
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testStart(self):  
     mix = dockermix.ContainerMix('dockermix-startstop.yml')
     mix.build()
@@ -199,7 +199,7 @@ class TestContainer(unittest.TestCase):
     
     mix.destroy()
   
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testStatus(self):
     mix = dockermix.ContainerMix('dockermix-startstop.yml')
     mix.build()
@@ -226,7 +226,7 @@ class TestContainer(unittest.TestCase):
         self.assertIn(line[14:29].rstrip(),  ['test_server_1', 'test_server_2'])
         self.assertEqual(line[67:77].rstrip(), "Destroyed")
 
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testLoad(self):
     self.mix.save()
     mix = dockermix.ContainerMix(environment = 'environment.yml')
