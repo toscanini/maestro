@@ -84,12 +84,12 @@ class TestContainer(unittest.TestCase):
   def testCount(self):
     mix = dockermix.ContainerMix('dockermix-count.yml')
         
-    mix.build()
+    mix.build(180)
     
     # Verify that all three services are running
     env = yaml.load(mix.dump())    
     
-    self.assertEqual(len(env), 4)
+    self.assertEqual(len(env['containers']), 4)
 
     for container in env['containers']:
       state = docker.Client().inspect_container(env['containers'][container]['container_id'])

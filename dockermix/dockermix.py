@@ -71,7 +71,7 @@ class ContainerMix:
         count = count - 1
       
   def destroy(self):
-    for container in reversed(self.start_order):
+    for container in self.containers:
       self.log.info('Destroying container: %s', container)      
       self.containers[container].destroy()     
 
@@ -84,7 +84,7 @@ class ContainerMix:
       self.containers[container].start()
 
   def stop(self):
-    for container in reversed(self.start_order):      
+    for container in self.containers:     
       self.log.info('Stopping container: %s', container)      
       self.containers[container].stop()
 
@@ -149,15 +149,13 @@ class ContainerMix:
     # Wait for any required services to finish registering        
     config = self.config['containers'][container]
     if 'require' in config:
-      #try:
+      try:
         # Containers can depend on mulitple services
         for service in config['require']:
-          port = config['require'][service]['port']
-  
-          count = config['require'][service].get('count', 1)
-          print count
+          port = config['require'][service]['port']          
           if port:
             # If count is defined then we need to wait for all instances to start                    
+            count = config['require'][service].get('count', 1)          
             if count > 1:
               while count > 0:
                 name = service + "__" + str(count)
@@ -166,8 +164,8 @@ class ContainerMix:
             else:
               self._pollService(container, service, port, wait_time)
 
-      #except:
-      #  self.log.error('Failure on require. Shutting down the environment')
-      #  self.destroy()
-      #  raise
+      except:
+        self.log.error('Failure on require. Shutting down the environment')
+        self.destroy()
+        raise
         
