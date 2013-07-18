@@ -1,0 +1,14 @@
+containers:
+  service1: 
+    base_image: ubuntu
+    count: 3
+    config:
+      command: '/bin/bash -c "apt-get install netcat ; nc -l 8080 -k"' 
+      detach: true    
+  service_post: 
+    base_image: ubuntu
+    config:
+      command: '/bin/bash -c "apt-get install netcat ; nc -l 8080 -k"' 
+      detach: true
+    --require:
+     -- test_server_1: '8080'

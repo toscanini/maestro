@@ -1,5 +1,5 @@
 import docker
-import os, sys, yaml, StringIO
+import os, sys, yaml, copy, StringIO
 import dockermix
 from requests.exceptions import HTTPError
 from .container import Container
@@ -14,7 +14,7 @@ class ContainerMix:
     self.containers = {}
     
     if environment:
-      self.load(environment)
+      self.load(environment)      
     else:
       if not conf_file.startswith('/'):
         conf_file = os.path.join(os.path.dirname(sys.argv[0]), conf_file)
@@ -22,15 +22,14 @@ class ContainerMix:
       data = open(conf_file, 'r')
       self.config = yaml.load(data)
       
-      # On load order containers into the proper startup sequence      
-      self.start_order = utils.order(self.config['containers'])
+    # On load order containers into the proper startup sequence      
+    self.start_order = utils.order(self.config['containers'])
 
   def get(self, container):
     return self.containers[container]
 
   def build(self, wait_time=60):
-    for container in self.start_order:
-      #TODO: confirm base_image exists
+    for container in self.start_order:      
       if not self.config['containers'][container]:
         sys.stderr.write("Error: no configuration found for container: " + container + "\n")
         exit(1)
@@ -45,19 +44,30 @@ class ContainerMix:
       self._handleRequire(container, wait_time)
                         
       self.log.info('Building container: %s using base template %s', container, base)
-      
-      build = Container(container, config)
-      dockerfile = None
-      if 'buildspec' in config:
-        if 'dockerfile' in config['buildspec']:      
-          dockerfile = config['buildspec']['dockerfile']
-        if 'url' in config['buildspec']:  
-          # TODO: this doesn't do anything yet
-          dockerfile_url = config['buildspec']['url']
+      count = 1
+      tag_name = False
+      if 'count' in config:
+        count = config['count']  
+        tag_name = True
 
-      build.build(dockerfile)
+      while count > 0:
+        name = container
+        if tag_name == True:
+          name = name + "_" + str(count)
 
-      self.containers[container] = build
+        build = Container(name, copy.deepcopy(config))
+        dockerfile = None
+        if 'buildspec' in config:
+          if 'dockerfile' in config['buildspec']:      
+            dockerfile = config['buildspec']['dockerfile']
+          if 'url' in config['buildspec']:  
+            # TODO: this doesn't do anything yet
+            dockerfile_url = config['buildspec']['url']
+
+        build.build(dockerfile)
+
+        self.containers[name] = build
+        count = count - 1
       
   def destroy(self):
     for container in reversed(self.start_order):
@@ -81,10 +91,10 @@ class ContainerMix:
     self.log.info('Loading environment from: %s', filename)      
     
     with open(filename, 'r') as input_file:
-      environment = yaml.load(input_file)
+      self.config = yaml.load(input_file)
 
-      for container in environment['containers']:
-        self.containers[container] = Container(container, environment['containers'][container])
+      for container in self.config['containers']:
+        self.containers[container] = Container(container, self.config['containers'][container])
     
   def save(self, filename='environment.yml'):
     self.log.info('Saving environment state to: %s', filename)      
