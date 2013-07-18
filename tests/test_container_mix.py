@@ -51,9 +51,9 @@ class TestContainer(unittest.TestCase):
       
       self.assertIsNotNone(state)
       if container == 'test_server_1':
-        self.assertIn('8080', state['NetworkSettings']['PortMapping'])
+        self.assertIn('8080', state['NetworkSettings']['PortMapping']['Tcp'])
       elif container == 'test_server_2':
-        self.assertEqual(state['NetworkSettings']['PortMapping'], {})
+        self.assertEqual(state['NetworkSettings']['PortMapping']['Tcp'], {})
       else:
         # Shouldn't get here
         self.assertFalse(True)
