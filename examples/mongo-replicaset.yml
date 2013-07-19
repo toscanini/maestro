@@ -1,0 +1,18 @@
+containers:
+  mongodb:     
+    base_image: kstaken/mongodb
+    count: 3
+    config:
+      command: /usr/bin/mongod --config /etc/mongodb.conf
+      detach: true
+  
+  setup:     
+    base_image: kstaken/mongodb
+    config:
+      command: /bin/bash
+      detach: false
+    require:
+      mongodb:
+        count: 3
+        port: 27017
+      
