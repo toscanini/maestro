@@ -61,14 +61,18 @@ class DockermixCli(cmdln.Cmdln):
       """Start a set of Docker containers that had been previously stopped. Container state is defined in an environment file. 
 
         usage:
-            start
+            start [container_name]
         
         ${cmd_option_list}
       """
+      container = None
+      if (len(sys.argv) > 2):
+        container = sys.argv[2]
+
       environment = self._verify_environment(opts.environment_file)
       
       containers = dockermix.ContainerMix(environment=environment)
-      containers.start() 
+      containers.start(container) 
 
       print "Environment started."
 
@@ -78,14 +82,18 @@ class DockermixCli(cmdln.Cmdln):
       """Stop a set of Docker containers as defined in an environment file. 
 
         usage:
-            stop
+            stop [container_name]
         
         ${cmd_option_list}
       """
+      container = None
+      if (len(sys.argv) > 2):
+        container = sys.argv[2]
+
       environment = self._verify_environment(opts.environment_file)
       
       containers = dockermix.ContainerMix(environment=environment)
-      containers.stop() 
+      containers.stop(container) 
 
       print "Environment stopped."
 
@@ -95,7 +103,7 @@ class DockermixCli(cmdln.Cmdln):
       """Restart a set of containers as defined in an environment file. 
 
         usage:
-            restart
+            restart [container_name]
         
         ${cmd_option_list}
       """
@@ -110,7 +118,7 @@ class DockermixCli(cmdln.Cmdln):
       """Stop and destroy a set of Docker containers as defined in an environment file. 
 
         usage:
-            stop
+            destroy
         
         ${cmd_option_list}
       """

@@ -75,18 +75,28 @@ class ContainerMix:
       self.log.info('Destroying container: %s', container)      
       self.containers[container].destroy()     
 
-  def start(self, wait_time=60):
-    for container in self.start_order:
+  def start(self, container=None, wait_time=60):
+    # If a container is provided we just start that container
+    # TODO: may need an abstraction here to handle names of multi-container groups
+    if container:
       self.log.info('Starting container: %s', container)      
-      
-      self._handleRequire(container, wait_time)
-      
-      self.containers[container].start()
+      self.containers[container].start()  
+    else:
+      for container in self.start_order:
+        self.log.info('Starting container: %s', container)      
+        
+        self._handleRequire(container, wait_time)
+        
+        self.containers[container].start()
 
-  def stop(self):
-    for container in self.containers:     
+  def stop(self, container=None):
+    if container:
       self.log.info('Stopping container: %s', container)      
       self.containers[container].stop()
+    else:
+      for container in self.containers:     
+        self.log.info('Stopping container: %s', container)      
+        self.containers[container].stop()
 
   def load(self, filename='envrionment.yml'):
     self.log.info('Loading environment from: %s', filename)      
