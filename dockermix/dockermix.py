@@ -70,10 +70,10 @@ class ContainerMix:
         self.containers[name] = build
         count = count - 1
       
-  def destroy(self):
+  def destroy(self, timeout=None):
     for container in self.containers:
       self.log.info('Destroying container: %s', container)      
-      self.containers[container].destroy()     
+      self.containers[container].destroy(timeout)     
 
   def start(self, container=None, wait_time=60):
     # If a container is provided we just start that container
@@ -89,14 +89,14 @@ class ContainerMix:
         
         self.containers[container].start()
 
-  def stop(self, container=None):
+  def stop(self, container=None, timeout=None):
     if container:
       self.log.info('Stopping container: %s', container)      
-      self.containers[container].stop()
+      self.containers[container].stop(timeout)
     else:
       for container in self.containers:     
         self.log.info('Stopping container: %s', container)      
-        self.containers[container].stop()
+        self.containers[container].stop(timeout)
 
   def load(self, filename='envrionment.yml'):
     self.log.info('Loading environment from: %s', filename)      
@@ -135,7 +135,7 @@ class ContainerMix:
 
       result += columns.format(container_id, node_name, command, status)
 
-    return result
+    return result.rstrip('\n')
 
   def dump(self):
     result = {}

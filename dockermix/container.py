@@ -35,16 +35,16 @@ class Container:
     
     self._start_container()
     
-  def destroy(self):
-    self.stop()
+  def destroy(self, timeout=None):
+    self.stop(timeout)
     self.docker_client.remove_container(self.desc['container_id'])    
     self.docker_client.remove_image(self.build_tag)
 
   def start(self):
     self.docker_client.start(self.desc['container_id'])
   
-  def stop(self):
-    self.docker_client.stop(self.desc['container_id'])
+  def stop(self, timeout=10):    
+    self.docker_client.stop(self.desc['container_id'], timeout=timeout)
     
   def get_ip_address(self):
     container_id = self.desc['container_id']
