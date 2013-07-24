@@ -5,7 +5,7 @@ import utils, StringIO
 
 class Container:
   def __init__(self, name, container_desc={}):
-    self.log = utils._setupLogging()
+    self.log = utils.setupLogging()
     
     if 'config' not in container_desc:
       raise service.ContainerError('No Docker configuration parameters found.')

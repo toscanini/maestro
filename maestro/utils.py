@@ -1,7 +1,7 @@
 import logging
 import os, sys, time, socket
 
-def _setupLogging():
+def setupLogging():
   log = logging.getLogger('maestro')
   log.setLevel(logging.DEBUG)
 

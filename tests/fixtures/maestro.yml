@@ -1,0 +1,13 @@
+environment:
+  description: Test Environment
+
+  services:
+    service_1:
+      description: Test service 1
+      version: 0.1
+      templates:
+        template_test:     
+          base_image: ubuntu
+          config:
+            command: /bin/bash
+            detach: true    

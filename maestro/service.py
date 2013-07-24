@@ -10,7 +10,7 @@ class ContainerError(Exception):
 
 class Service:
   def __init__(self, conf_file=None, environment=None):
-    self.log = utils._setupLogging()
+    self.log = utils.setupLogging()
     self.containers = {}
     
     if environment:
