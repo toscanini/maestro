@@ -128,7 +128,34 @@ class DockermixCli(cmdln.Cmdln):
       containers.destroy() 
 
       print "Environment destroyed."
+ 
+    @cmdln.option("-e", "--environment_file",
+                  help='path to the environment file to use to save the state of running containers')
+    def do_run(self, subcmd, opts, *args):
+      """Start a set of Docker containers that had been previously stopped. Container state is defined in an environment file. 
+
+        usage:
+            run container_name [commandline]
+        
+        ${cmd_option_list}
+      """
+      # TODO: this doesn't do anything yet.
+      exit(-1)
+      container = None
+      if (len(sys.argv) <= 2):
+        sys.stderr.write("Error: Container name must be provided\n")
+        exit(1)
+
+      environment = self._verify_environment(opts.environment_file)
       
+      container = sys.argv[2]
+      commandline = sys.argv[3:]
+      
+      containers = dockermix.ContainerMix(environment=environment)
+      containers.run(container, commandline) 
+
+      print "Environment started."     
+
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
     def do_status(self, subcmd, opts, *args):
