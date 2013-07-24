@@ -1,0 +1,7 @@
+base_image: ubuntu
+config:
+  command: /bin/bash
+  detach: true    
+buildspec:
+  dockerfile: |
+    FROM ubuntu 

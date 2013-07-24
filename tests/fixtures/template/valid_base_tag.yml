@@ -1,0 +1,4 @@
+base_image: ubuntu:precise
+config:
+  command: /bin/bash
+  detach: true  

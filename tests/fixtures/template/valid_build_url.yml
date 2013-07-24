@@ -1,0 +1,6 @@
+base_image: ubuntu
+config:
+  command: /bin/bash
+  detach: true    
+buildspec:
+  url: github.com/toscanini/maestro-dockerfile-test

@@ -1,0 +1,3 @@
+config:
+  command: /bin/bash
+  detach: true 
