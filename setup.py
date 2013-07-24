@@ -1,10 +1,10 @@
 from distutils.core import setup
-setup(name='dockermix',
+setup(name='maestro',
     version='0.1',
-    description='Tools to provision multiple Docker containers via a single command.',
+    description='Orchestration tools for multi-container docker environments',
     author='Kimbro Staken',
     author_email='kstaken@kstaken.com',
     url='https://github.com/kstaken/dockermix',
-    packages=['dockermix'],
-    scripts=['bin/dockermix']
+    packages=['maestro'],
+    scripts=['bin/maestro']
 )

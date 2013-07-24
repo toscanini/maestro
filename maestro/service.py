@@ -1,6 +1,6 @@
 import docker
 import os, sys, yaml, copy, StringIO
-import dockermix
+import maestro
 from requests.exceptions import HTTPError
 from .container import Container
 import utils
@@ -8,7 +8,7 @@ import utils
 class ContainerError(Exception):
   pass
 
-class ContainerMix:
+class Service:
   def __init__(self, conf_file=None, environment=None):
     self.log = utils._setupLogging()
     self.containers = {}

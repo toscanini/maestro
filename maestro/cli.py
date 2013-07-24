@@ -1,26 +1,26 @@
 import sys, os
 import cmdln
-from . import dockermix
+from . import service
 
-class DockermixCli(cmdln.Cmdln):
+class MaestroCli(cmdln.Cmdln):
     """Usage:
-        dockermix SUBCOMMAND [ARGS...]
-        dockermix help SUBCOMMAND
+        maestro SUBCOMMAND [ARGS...]
+        maestro help SUBCOMMAND
 
-    Dockermix provides a command to manage multiple Docker containers
+    Maestro provides a command to manage multiple Docker containers
     from a single configuration.
 
     ${command_list}
     ${help_list}
     """
-    name = "dockermix"
+    name = "maestro"
 
     def __init__(self, *args, **kwargs):
       cmdln.Cmdln.__init__(self, *args, **kwargs)
       cmdln.Cmdln.do_help.aliases.append("h")
 
-    @cmdln.option("-f", "--dockermix_file",
-                  help='path to the dockermix file to use')
+    @cmdln.option("-f", "--maestro_file",
+                  help='path to the maestro file to use')
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
     @cmdln.option("-n", "--no_save", action='store_true',
@@ -33,18 +33,18 @@ class DockermixCli(cmdln.Cmdln):
         
         ${cmd_option_list}
       """
-      config = opts.dockermix_file
+      config = opts.maestro_file
       if not config:
-        config = os.path.join(os.getcwd(), 'dockermix.yml')
+        config = os.path.join(os.getcwd(), 'maestro.yml')
 
       if not config.startswith('/'):
         config = os.path.join(os.getcwd(), config)
 
       if not os.path.exists(config):
-        sys.stderr.write("No dockermix configuration found {0}\n".format(config))
+        sys.stderr.write("No maestro configuration found {0}\n".format(config))
         exit(1)
       
-      containers = dockermix.ContainerMix(config)
+      containers = service.Service(config)
       containers.build()
       if (not opts.no_save):
         environment = opts.environment_file
@@ -71,7 +71,7 @@ class DockermixCli(cmdln.Cmdln):
 
       environment = self._verify_environment(opts.environment_file)
       
-      containers = dockermix.ContainerMix(environment=environment)
+      containers = service.Service(environment=environment)
       containers.start(container) 
 
       print "Environment started."
@@ -92,7 +92,7 @@ class DockermixCli(cmdln.Cmdln):
 
       environment = self._verify_environment(opts.environment_file)
       
-      containers = dockermix.ContainerMix(environment=environment)
+      containers = service.Service(environment=environment)
       containers.stop(container) 
 
       print "Environment stopped."
@@ -124,7 +124,7 @@ class DockermixCli(cmdln.Cmdln):
       """
       environment = self._verify_environment(opts.environment_file)
       
-      containers = dockermix.ContainerMix(environment=environment)
+      containers = service.Service(environment=environment)
       containers.destroy() 
 
       print "Environment destroyed."
@@ -151,7 +151,7 @@ class DockermixCli(cmdln.Cmdln):
       container = sys.argv[2]
       commandline = sys.argv[3:]
       
-      containers = dockermix.ContainerMix(environment=environment)
+      containers = service.Service(environment=environment)
       containers.run(container, commandline) 
 
       print "Environment started."     
@@ -168,7 +168,7 @@ class DockermixCli(cmdln.Cmdln):
       """
       environment = self._verify_environment(opts.environment_file)
       
-      containers = dockermix.ContainerMix(environment=environment)
+      containers = service.Service(environment=environment)
       print containers.status() 
 
     def _verify_environment(self, environment):

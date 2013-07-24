@@ -1,15 +1,15 @@
 import unittest, sys
 sys.path.append('.')
-from dockermix import dockermix
+from maestro import service
 from requests.exceptions import HTTPError
 
 class TestContainer(unittest.TestCase):
   def testInit(self):
-    with self.assertRaises(dockermix.ContainerError) as e:
-        dockermix.Container('test_container', {})
+    with self.assertRaises(service.ContainerError) as e:
+        service.Container('test_container', {})
 
   def testGetIpAddress(self):
-    container = dockermix.Container('test_container', {'config': {'command': 'ps aux'}})
+    container = service.Container('test_container', {'config': {'command': 'ps aux'}})
 
     container.build()
 
@@ -17,7 +17,7 @@ class TestContainer(unittest.TestCase):
     self.assertIsNotNone(container.get_ip_address())
 
   def testBuild(self):
-    container = dockermix.Container('test_container', {'config': {'command': 'ps aux'}})
+    container = service.Container('test_container', {'config': {'command': 'ps aux'}})
 
     container.build()
 
@@ -30,7 +30,7 @@ class TestContainer(unittest.TestCase):
     self.assertEqual(state['Config']['Image'], 'ubuntu')
 
   def testDestroy(self):
-    container = dockermix.Container('test_container', {'config': {'command': 'ps aux'}})
+    container = service.Container('test_container', {'config': {'command': 'ps aux'}})
 
     container.build()
 

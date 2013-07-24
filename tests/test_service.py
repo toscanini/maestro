@@ -1,12 +1,12 @@
 import unittest, sys, yaml
 import docker
 sys.path.append('.')
-from dockermix import dockermix
+from maestro import service
 from requests.exceptions import HTTPError
 
 class TestContainer(unittest.TestCase):
   def setUp(self):
-    self.mix = dockermix.ContainerMix('dockermix.yml')
+    self.mix = service.Service('fixtures/default.yml')
     self.mix.build()
     
   def tearDown(self):
@@ -19,7 +19,7 @@ class TestContainer(unittest.TestCase):
 
  #@unittest.skip("Skipping")
   def testBuildDockerfile(self):
-    mix = dockermix.ContainerMix('dockermix-dockerfile.yml')
+    mix = service.Service('fixtures/dockerfile.yml')
     mix.build()
     env = yaml.load(mix.dump())
         
@@ -62,7 +62,7 @@ class TestContainer(unittest.TestCase):
   
  #@unittest.skip("skipping")
   def testDestroy(self):
-    mix = dockermix.ContainerMix('dockermix.yml')
+    mix = service.Service('fixtures/default.yml')
     mix.build()
    
     env = yaml.load(mix.dump())
@@ -84,7 +84,7 @@ class TestContainer(unittest.TestCase):
 
  #@unittest.skip("skipping")
   def testDependencyEnv(self):
-    mix = dockermix.ContainerMix('dockermix-count.yml')
+    mix = service.Service('fixtures/count.yml')
         
     mix.build()
     
@@ -100,7 +100,7 @@ class TestContainer(unittest.TestCase):
   
  #@unittest.skip("skipping")
   def testCount(self):
-    mix = dockermix.ContainerMix('dockermix-count.yml')
+    mix = service.Service('fixtures/count.yml')
         
     mix.build(180)
     
@@ -120,7 +120,7 @@ class TestContainer(unittest.TestCase):
 
  #@unittest.skip("skipping")
   def testRequire(self):
-    mix = dockermix.ContainerMix('dockermix-require.yml')
+    mix = service.Service('fixtures/require.yml')
     
     # Verify that it determined the correct start order
     start_order = mix.start_order
@@ -143,7 +143,7 @@ class TestContainer(unittest.TestCase):
 
   #@unittest.skip("skipping")
   def testStop(self):
-    mix = dockermix.ContainerMix('dockermix-startstop.yml')
+    mix = service.Service('fixtures/startstop.yml')
     mix.build()
     
     env = yaml.load(mix.dump())    
@@ -182,7 +182,7 @@ class TestContainer(unittest.TestCase):
 
   #@unittest.skip("skipping")
   def testStart(self):  
-    mix = dockermix.ContainerMix('dockermix-startstop.yml')
+    mix = service.Service('fixtures/startstop.yml')
     mix.build()
     
     mix.stop(timeout=1)
@@ -222,7 +222,7 @@ class TestContainer(unittest.TestCase):
   
  #@unittest.skip("skipping")
   def testStatus(self):
-    mix = dockermix.ContainerMix('dockermix-startstop.yml')
+    mix = service.Service('fixtures/startstop.yml')
     mix.build()
     
     status = mix.status() 
@@ -250,7 +250,7 @@ class TestContainer(unittest.TestCase):
  #@unittest.skip("skipping")
   def testLoad(self):
     self.mix.save()
-    mix = dockermix.ContainerMix(environment = 'environment.yml')
+    mix = service.Service(environment = 'environment.yml')
     env = yaml.load(mix.dump())    
     
     self._configCheck(env)    

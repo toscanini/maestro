@@ -1,6 +1,6 @@
 import os
 import docker
-import dockermix
+import service
 import utils, StringIO
 
 class Container:
@@ -8,7 +8,7 @@ class Container:
     self.log = utils._setupLogging()
     
     if 'config' not in container_desc:
-      raise dockermix.ContainerError('No Docker configuration parameters found.')
+      raise service.ContainerError('No Docker configuration parameters found.')
 
     self.desc = container_desc
     self.config = container_desc['config']
@@ -19,7 +19,7 @@ class Container:
 
     if 'command' not in self.config:
       self.log.error("Error: No command specified for container " + name + "\n")
-      raise ContainerError('No command specified in configuration') 
+      raise service.ContainerError('No command specified in configuration') 
       
     self.docker_client = docker.Client()
     

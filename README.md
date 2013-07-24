@@ -1,13 +1,15 @@
-dockermix
+Maestro
 ============
 
-A command line tool to build and manage multi-container docker environments. Container sets are defined in a simple YAML format that mirrors the options available in the Docker API. The intention is to be able to easily launch, orchestrate and destroy complex multi-node envionments for testing and development.
+A command line tool for Container orchestration and management in multi-container docker environments. Container sets are defined in a simple YAML format that mirrors the options available in the Docker API. The intention is to be able to easily launch, orchestrate and destroy complex multi-node envionments for testing and development.
 
 
 Status
 ======
 
 Early development. Certainly lots of bugs and not quite useful yet but getting close. The configuration format in particular is changing heavily.
+
+Note: this project used to be called DockerMix.
 
 Features
 ========
@@ -93,27 +95,27 @@ Here's an example yaml file:
 Command Line Tools
 ===
 
-The command line tool is called `dockermix` and initial enironments are defined in `dockermix.yml`. If there is a `dockermix.yml` in the current directory it will be automatically used otherwise the `-f` option can be used to specify the location of the file.
+The command line tool is called `maestro` and initial enironments are defined in `maestro.yml`. If there is a `maestro.yml` in the current directory it will be automatically used otherwise the `-f` option can be used to specify the location of the file.
 
 The environment state will be saved to a file named `environment.yml` and commands that manipulate existing environments will look for an `environment.yml` in the current directory or it can be specified by the `-e` option.
 
-`dockermix build`
+`maestro build`
 
-Setup a new environment using a `dockermix.yml` specification.
+Setup a new environment using a `maestro.yml` specification.
 
-`dockermix start`
+`maestro start`
 
 Start an existing environment that had been previously stopped and saved in `environment.yml`
 
-`dockermix stop`
+`maestro stop`
 
 Stop all containers in an environment and save the state to `environment.yml`
 
-`dockermix destroy`
+`maestro destroy`
 
 Destroy all containers defined in an environment. Once destroyed the containers can not be recoved.
 
-`dockermix status`
+`maestro status`
 
 Show the status of the containers in an environment.
 

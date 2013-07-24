@@ -2,11 +2,11 @@ import logging
 import os, sys, time, socket
 
 def _setupLogging():
-  log = logging.getLogger('dockermix')
+  log = logging.getLogger('maestro')
   log.setLevel(logging.DEBUG)
 
   formatter = logging.Formatter("%(asctime)s %(levelname)-10s %(message)s")
-  filehandler = logging.FileHandler('dockermix.log', 'w')
+  filehandler = logging.FileHandler('maestro.log', 'w')
   filehandler.setLevel(logging.DEBUG)
   filehandler.setFormatter(formatter)
   log.addHandler(filehandler)  
