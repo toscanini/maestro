@@ -36,8 +36,8 @@ Install Docker as described here: http://www.docker.io/gettingstarted/
 Then:
 ```
     sudo apt-get install -y python-pip
-    git clone https://github.com/kstaken/dockermix.git
-    cd dockermix
+    git clone https://github.com/toscanini/maestro.git
+    cd maestro
     sudo pip install -r requirements.txt 
     sudo python setup.py install
 ```

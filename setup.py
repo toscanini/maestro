@@ -4,7 +4,7 @@ setup(name='maestro',
     description='Orchestration tools for multi-container docker environments',
     author='Kimbro Staken',
     author_email='kstaken@kstaken.com',
-    url='https://github.com/kstaken/dockermix',
+    url='https://github.com/toscanini/maestro',
     packages=['maestro'],
     scripts=['bin/maestro']
 )
