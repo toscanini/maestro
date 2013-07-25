@@ -36,12 +36,6 @@ class Service:
         exit(1)
 
       config = self.config['containers'][container]
-      #if 'base_image' not in config:
-      #  sys.stderr.write("Error: no base image specified for container: " + container)
-      #  exit(1)
-
-      #base = config['base_image']
-
 
       self._handleRequire(container, wait_time)
       
@@ -60,24 +54,11 @@ class Service:
         if tag_name > 1:
           name = name + "__" + str(count)
 
-        #self.log.info('Building container: %s using base template %s', name, base)
-      
         instance = tmpl.instantiate(name)
         instance.run()
-        #build = Container(name, copy.deepcopy(config))
-        #dockerfile = None
-        #if 'buildspec' in config:
-        #  if 'dockerfile' in config['buildspec']:      
-        #    dockerfile = config['buildspec']['dockerfile']
-        #  if 'url' in config['buildspec']:  
-            # TODO: this doesn't do anything yet
-        #    dockerfile_url = config['buildspec']['url']
-
-        #build.build(dockerfile)
 
         self.containers[name] = instance
-        #self.containers[name]['container_id'] = instance.desc['container_id']
-
+        
         count = count - 1
       
   def destroy(self, timeout=None):
@@ -116,8 +97,8 @@ class Service:
       
       for container in self.config['containers']:
         self.containers[container] = Container(container, self.config['containers'][container]['image_id'], 
-          self.config['containers'][container]['config'])
-        self.containers[container].run()
+          self.config['containers'][container])
+        self.containers[container].start()
     
   def save(self, filename='environment.yml'):
     self.log.info('Saving environment state to: %s', filename)      

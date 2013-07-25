@@ -52,7 +52,7 @@ class Template:
 
   # Launches an instance of the template in a new container
   def instantiate(self, name, command=None):    
-    config = copy.deepcopy(self.config['config'])
+    config = copy.deepcopy(self.config)
     if command:
       config['command'] = command
 

@@ -7,10 +7,13 @@ class Container:
   def __init__(self, name, image_id, config):
     self.log = utils.setupLogging()
     
-    self.desc = {}
+    self.desc = config
     self.desc['image_id'] = image_id
-    self.desc['config'] = config
-    self.config = config
+    #self.desc['config'] = config
+    if 'config' not in config:
+      raise ContainerError("No Configuration provided")
+
+    self.config = config['config']
 
     self.name = name
     
@@ -29,7 +32,7 @@ class Container:
   def start(self):
     self.docker_client.start(self.desc['container_id'])
   
-  def stop(self, timeout=10):    
+  def stop(self, timeout=10):
     self.docker_client.stop(self.desc['container_id'], timeout=timeout)
     
   def destroy(self, timeout=None):

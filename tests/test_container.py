@@ -10,7 +10,7 @@ class TestContainer(unittest.TestCase):
 
   def testGetIpAddress(self):
     # TODO: image_id will change
-    c = container.Container('test_container', utils.findImage('ubuntu'), {'command': 'ps aux'})
+    c = container.Container('test_container', utils.findImage('ubuntu'), {'config': {'command': 'ps aux'}})
 
     c.run()
 
@@ -18,7 +18,7 @@ class TestContainer(unittest.TestCase):
     self.assertIsNotNone(c.get_ip_address())
 
   def testDestroy(self):
-    c = container.Container('test_container', utils.findImage('ubuntu'), {'command': 'ps aux'})
+    c = container.Container('test_container', utils.findImage('ubuntu'), {'config': {'command': 'ps aux'}})
 
     c.run()
 
