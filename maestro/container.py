@@ -9,6 +9,7 @@ class Container:
     
     self.desc = {}
     self.desc['image_id'] = image_id
+    self.desc['config'] = config
     self.config = config
 
     self.name = name

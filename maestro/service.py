@@ -1,8 +1,9 @@
 import docker
 import os, sys, yaml, copy, StringIO
-import maestro
+import maestro, template
 from requests.exceptions import HTTPError
 from .container import Container
+
 import utils
 
 class ContainerError(Exception):
@@ -35,14 +36,19 @@ class Service:
         exit(1)
 
       config = self.config['containers'][container]
-      if 'base_image' not in config:
-        sys.stderr.write("Error: no base image specified for container: " + container)
-        exit(1)
+      #if 'base_image' not in config:
+      #  sys.stderr.write("Error: no base image specified for container: " + container)
+      #  exit(1)
 
-      base = config['base_image']
+      #base = config['base_image']
+
 
       self._handleRequire(container, wait_time)
       
+      # Create the template. The service name and version will be dynamic once the new config format is implemented
+      tmpl = template.Template(container, config, 'test.service', '0.1')
+      tmpl.build()
+
       # If count is defined in the config then we're launching multiple instances of the same thing
       # and they'll need to be tagged accordingly. Count only applies on build.
       count = tag_name = 1
@@ -54,20 +60,24 @@ class Service:
         if tag_name > 1:
           name = name + "__" + str(count)
 
-        self.log.info('Building container: %s using base template %s', name, base)
+        #self.log.info('Building container: %s using base template %s', name, base)
       
-        build = Container(name, copy.deepcopy(config))
-        dockerfile = None
-        if 'buildspec' in config:
-          if 'dockerfile' in config['buildspec']:      
-            dockerfile = config['buildspec']['dockerfile']
-          if 'url' in config['buildspec']:  
+        instance = tmpl.instantiate(name)
+        instance.run()
+        #build = Container(name, copy.deepcopy(config))
+        #dockerfile = None
+        #if 'buildspec' in config:
+        #  if 'dockerfile' in config['buildspec']:      
+        #    dockerfile = config['buildspec']['dockerfile']
+        #  if 'url' in config['buildspec']:  
             # TODO: this doesn't do anything yet
-            dockerfile_url = config['buildspec']['url']
+        #    dockerfile_url = config['buildspec']['url']
 
-        build.build(dockerfile)
+        #build.build(dockerfile)
 
-        self.containers[name] = build
+        self.containers[name] = instance
+        #self.containers[name]['container_id'] = instance.desc['container_id']
+
         count = count - 1
       
   def destroy(self, timeout=None):
@@ -103,9 +113,11 @@ class Service:
     
     with open(filename, 'r') as input_file:
       self.config = yaml.load(input_file)
-
+      
       for container in self.config['containers']:
-        self.containers[container] = Container(container, self.config['containers'][container])
+        self.containers[container] = Container(container, self.config['containers'][container]['image_id'], 
+          self.config['containers'][container]['config'])
+        self.containers[container].run()
     
   def save(self, filename='environment.yml'):
     self.log.info('Saving environment state to: %s', filename)      

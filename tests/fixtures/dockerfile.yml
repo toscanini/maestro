@@ -15,6 +15,6 @@ containers:
     config:
       command: 'ls -l'    
     buildspec:
-      url: https://raw.github.com/kstaken/dockerfile-examples/master/nodejs/Dockerfile
+      url: github.com/toscanini/maestro-dockerfile-test
       tags:
         - kstaken/test_server_2
