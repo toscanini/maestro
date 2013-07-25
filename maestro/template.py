@@ -1,6 +1,6 @@
 import docker
-import exceptions, utils
-import StringIO
+import exceptions, utils, container
+import StringIO, copy
 from requests.exceptions import HTTPError
 
 
@@ -51,9 +51,12 @@ class Template:
     return True
 
   # Launches an instance of the template in a new container
-  def launch(self, command=None):
+  def instantiate(self, name, command=None):    
+    config = copy.deepcopy(self.config['config'])
+    if command:
+      config['command'] = command
 
-    pass
+    return container.Container(name, self.config['image_id'], config)
 
   def destroy(self):
     # If there is an image_id then we need to destroy the image.

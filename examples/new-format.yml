@@ -18,17 +18,17 @@ environment:
         user: {{ mongohq_user }} -- Set as MONGOHQ_USER in env of any dependenct containers
         password: {{ mongohq_password }} -- Set as MONGOHQ_PASSWORD 
 
-    mongodb:
+    mongodb: only useful to services
       description: MongoDB Database service
       version: 0.1
       exposes: 27017
       templates:
-        mongodb:     
+        mongodb: -- only useful to templates
           base_image: kstaken/mongodb
-          config:
+          config: -- only useful to containers
             command: /usr/bin/mongod --config /etc/mongodb.conf
             detach: true  
-          
+
 
     nodejs:
       description: Deployment service for Node.js

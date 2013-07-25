@@ -1,8 +1,7 @@
 import unittest, sys, yaml, os
 
 sys.path.append('.')
-from maestro import template
-from maestro import exceptions
+from maestro import template, utils, exceptions
 
 class TestTemplate(unittest.TestCase):
 
@@ -14,14 +13,14 @@ class TestTemplate(unittest.TestCase):
     self.assertTrue(t.build())
 
     # Verify the image really exists with docker.
-    self.assertIsNotNone(self._findImage(t, t.full_name(), t.version))
+    self.assertIsNotNone(utils.findImage(t.full_name(), t.version))
     t.destroy()
 
     # Test correct build  with a tag
     config = self._loadFixture("valid_base_tag.yml")
     t = template.Template('template_test', config, 'test.service', '0.1')
     self.assertTrue(t.build())
-    self.assertIsNotNone(self._findImage(t, t.full_name(), t.version))
+    self.assertIsNotNone(utils.findImage(t.full_name(), t.version))
     t.destroy()
 
     # Test invalid base image    
@@ -65,7 +64,18 @@ class TestTemplate(unittest.TestCase):
     t = template.Template('template_test', config, 'test.service', '0.1')
     self.assertTrue(t.build())
     t.destroy()
-    
+
+  def testInstantiate(self):
+    config = self._loadFixture("valid_base.yml")
+    t = template.Template('template_test', config, 'test.service', '0.1')
+    self.assertTrue(t.build())
+
+    container = t.instantiate('template_test')
+    container.run()
+    self.assertIsNotNone(container.get_ip_address())
+    container.destroy()
+    t.destroy()
+
   def testDestroy(self):    
     config = self._loadFixture("valid_base.yml")
     t = template.Template('template_test', config, 'test.service', '0.1')

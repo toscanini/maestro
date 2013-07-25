@@ -4,3 +4,6 @@ class MaestroError(Exception):
 
 class TemplateError(MaestroError):
   pass
+
+class ContainerError(MaestroError):
+  pass

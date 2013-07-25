@@ -1,5 +1,6 @@
 import logging
 import os, sys, time, socket
+import docker
 
 def setupLogging():
   log = logging.getLogger('maestro')
@@ -65,3 +66,11 @@ def waitForService(ip, port, retries=60):
       continue
     
   return retries
+
+def findImage(name, tag="latest"):
+  result =  docker.Client().images(name=name)
+
+  for image in result:
+    if image['Tag'] == tag:
+      return image['Id']
+  return None
