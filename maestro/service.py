@@ -13,7 +13,8 @@ class Service:
   def __init__(self, conf_file=None, environment=None):
     self.log = utils.setupLogging()
     self.containers = {}
-    
+    self.templates = {}
+
     if environment:
       self.load(environment)      
     else:
@@ -30,18 +31,20 @@ class Service:
     return self.containers[container]
 
   def build(self, wait_time=60):
-    for container in self.start_order:      
-      if not self.config['containers'][container]:
-        sys.stderr.write("Error: no configuration found for container: " + container + "\n")
+    for tmpl in self.start_order:      
+      if not self.config['containers'][tmpl]:
+        sys.stderr.write("Error: no configuration found for template: " + tmpl + "\n")
         exit(1)
 
-      config = self.config['containers'][container]
+      config = self.config['containers'][tmpl]
 
-      self._handleRequire(container, wait_time)
+      self._handleRequire(tmpl, wait_time)
       
       # Create the template. The service name and version will be dynamic once the new config format is implemented
-      tmpl = template.Template(container, config, 'service', '0.1')
-      tmpl.build()
+      tmpl_instance = template.Template(tmpl, config, 'service', '0.1')
+      tmpl_instance.build()
+
+      self.templates[tmpl] = tmpl_instance
 
       # If count is defined in the config then we're launching multiple instances of the same thing
       # and they'll need to be tagged accordingly. Count only applies on build.
@@ -50,11 +53,11 @@ class Service:
         count = tag_name = config['count']  
       
       while count > 0:      
-        name = container
+        name = tmpl
         if tag_name > 1:
           name = name + "__" + str(count)
 
-        instance = tmpl.instantiate(name)
+        instance = tmpl_instance.instantiate(name)
         instance.run()
 
         self.containers[name] = instance
@@ -98,13 +101,15 @@ class Service:
       for container in self.config['containers']:
         self.containers[container] = Container(container, self.config['containers'][container]['image_id'], 
           self.config['containers'][container])
-        self.containers[container].start()
     
   def save(self, filename='environment.yml'):
     self.log.info('Saving environment state to: %s', filename)      
       
     with open(filename, 'w') as output_file:
       output_file.write(self.dump())
+
+  def run(self, template, commandline=None):
+    raise Exception("Not implemented yet")
 
   def status(self):
     columns = "{0:<14}{1:<19}{2:<44}{3:<11}\n" 
@@ -115,7 +120,7 @@ class Service:
       node_name = (container[:15] + '..') if len(container) > 17 else container
 
       command = ''
-      status = 'OFF'
+      status = 'Stopped'
       try:
         state = docker.Client().inspect_container(container_id)
         command = string.join([state['Path']] + state['Args'])

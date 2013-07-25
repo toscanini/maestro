@@ -148,13 +148,13 @@ class MaestroCli(cmdln.Cmdln):
 
       environment = self._verify_environment(opts.environment_file)
       
-      container = sys.argv[2]
+      template = sys.argv[2]
       commandline = sys.argv[3:]
       
       containers = service.Service(environment=environment)
-      containers.run(container, commandline) 
+      containers.run(template, commandline) 
 
-      print "Environment started."     
+      print "Running a new instance of " + template     
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')

@@ -12,3 +12,8 @@ class Environment:
   def destroy(self):
     pass
 
+  def load(self):
+    pass
+
+  
+

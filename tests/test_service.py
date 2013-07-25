@@ -233,7 +233,7 @@ class TestContainer(unittest.TestCase):
     for line in lines:
       if len(line) > 0:
         self.assertIn(line[14:29].rstrip(),  ['test_server_1', 'test_server_2'])
-        self.assertEqual(line[67:77].rstrip(), "Running")
+        self.assertEqual(line[77:87].rstrip(), "Running")
 
     mix.destroy(timeout=1)
 
@@ -245,7 +245,7 @@ class TestContainer(unittest.TestCase):
     for line in lines:
       if len(line) > 0:
         self.assertIn(line[14:29].rstrip(),  ['test_server_1', 'test_server_2'])
-        self.assertEqual(line[67:77].rstrip(), "Destroyed")
+        self.assertEqual(line[77:87].rstrip(), "Destroyed")
 
   #@unittest.skip("skipping")
   def testLoad(self):
