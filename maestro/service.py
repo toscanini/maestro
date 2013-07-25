@@ -97,9 +97,13 @@ class Service:
     
     with open(filename, 'r') as input_file:
       self.config = yaml.load(input_file)
+
+      for tmpl in self.config['templates']:
+        # TODO fix hardcoded service name and version
+        self.templates[tmpl] = template.Template(tmpl, self.config['templates'][tmpl], 'service', '0.1')
       
       for container in self.config['containers']:
-        self.containers[container] = Container(container, self.config['containers'][container]['image_id'], 
+        self.containers[container] = Container(container, self.config['containers'][container], 
           self.config['containers'][container])
     
   def save(self, filename='environment.yml'):
@@ -115,7 +119,7 @@ class Service:
     columns = "{0:<14}{1:<19}{2:<44}{3:<11}\n" 
     result = columns.format("ID", "NODE", "COMMAND", "STATUS")
     for container in self.containers:
-      container_id = self.containers[container].desc['container_id']
+      container_id = self.containers[container].state['container_id']
       
       node_name = (container[:15] + '..') if len(container) > 17 else container
 
@@ -137,9 +141,13 @@ class Service:
 
   def dump(self):
     result = {}
+    result['templates'] = {}
+    for template in self.templates:      
+      result['templates'][template] = self.templates[template].config
+
     result['containers'] = {}
     for container in self.containers:      
-      output = result['containers'][container] = self.containers[container].desc
+      result['containers'][container] = self.containers[container].state
 
     return yaml.dump(result, Dumper=yaml.SafeDumper)
 

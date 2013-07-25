@@ -52,11 +52,11 @@ class Template:
 
   # Launches an instance of the template in a new container
   def instantiate(self, name, command=None):    
-    config = copy.deepcopy(self.config)
+    config = copy.deepcopy(self.config['config'])
     if command:
       config['command'] = command
 
-    return container.Container(name, self.config['image_id'], config)
+    return container.Container(name, {'image_id': self.config['image_id']}, config)
 
   def destroy(self):
     # If there is an image_id then we need to destroy the image.

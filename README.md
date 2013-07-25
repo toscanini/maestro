@@ -40,6 +40,7 @@ Then:
     cd maestro
     sudo pip install -r requirements.txt 
     sudo python setup.py install
+    docker pull ubuntu
 ```
 
 Configuration File Format

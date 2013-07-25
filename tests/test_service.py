@@ -251,6 +251,7 @@ class TestContainer(unittest.TestCase):
   def testLoad(self):
     self.mix.save()
     mix = service.Service(environment = 'environment.yml')
+
     env = yaml.load(mix.dump())    
     
     self._configCheck(env)    
@@ -260,7 +261,7 @@ class TestContainer(unittest.TestCase):
     
     for container in env['containers']:
       self.assertIn(container, ['test_server_1', 'test_server_2'])
-
+      
       state = docker.Client().inspect_container(env['containers'][container]['container_id'])
 
       self.assertEqual(state['State']['ExitCode'], 0)
