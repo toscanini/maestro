@@ -1,5 +1,5 @@
 import docker
-import os, sys, yaml, copy, StringIO
+import os, sys, yaml, copy, string, StringIO
 import maestro, template
 from requests.exceptions import HTTPError
 from .container import Container
@@ -40,7 +40,7 @@ class Service:
       self._handleRequire(container, wait_time)
       
       # Create the template. The service name and version will be dynamic once the new config format is implemented
-      tmpl = template.Template(container, config, 'test.service', '0.1')
+      tmpl = template.Template(container, config, 'service', '0.1')
       tmpl.build()
 
       # If count is defined in the config then we're launching multiple instances of the same thing
@@ -107,7 +107,7 @@ class Service:
       output_file.write(self.dump())
 
   def status(self):
-    columns = "{0:<14}{1:<19}{2:<34}{3:<11}\n" 
+    columns = "{0:<14}{1:<19}{2:<44}{3:<11}\n" 
     result = columns.format("ID", "NODE", "COMMAND", "STATUS")
     for container in self.containers:
       container_id = self.containers[container].desc['container_id']
@@ -118,8 +118,8 @@ class Service:
       status = 'OFF'
       try:
         state = docker.Client().inspect_container(container_id)
-        command = "".join([state['Path']] + state['Args'] + [" "])
-        command = (command[:30] + '..') if len(command) > 32 else command
+        command = string.join([state['Path']] + state['Args'])
+        command = (command[:40] + '..') if len(command) > 42 else command
         
         if state['State']['Running']:
           status = 'Running'

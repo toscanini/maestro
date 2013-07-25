@@ -18,7 +18,7 @@ environment:
         user: {{ mongohq_user }} -- Set as MONGOHQ_USER in env of any dependenct containers
         password: {{ mongohq_password }} -- Set as MONGOHQ_PASSWORD 
 
-    mongodb: only useful to services
+    mongodb: -- only useful to services
       description: MongoDB Database service
       version: 0.1
       exposes: 27017
@@ -43,11 +43,13 @@ environment:
             environment:
               - PORT=80
           require:
-            mongodb: 
-              port: '27017'
-            tosca_file: -- Standard services 
+            tosca_file: -- Platform provided service
               mount: /var/www
 
+      require:
+        mongodb: 
+          port: '27017'
+      
   defaults:
       public_port: '8100'
       tosca_file.mount: /tmp/
