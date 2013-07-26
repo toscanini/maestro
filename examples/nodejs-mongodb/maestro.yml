@@ -3,7 +3,7 @@
 --  version: 0.1
 templates:
   nodejs: 
-    base_image: kstaken/nodejs
+    base_image: ubuntu
     config:
       command: /usr/bin/node /var/www/app.js
       detach: true
@@ -11,12 +11,17 @@ templates:
         - '80'  
       environment:
         - PORT=80
+    buildspec:
+      url: github.com/toscanini/docker-nodejs
     require:
       mongodb: 
         port: '27017'
   mongodb:     
-    base_image: kstaken/mongodb
+    base_image: ubuntu
     config:
       command: /usr/bin/mongod --config /etc/mongodb.conf
       detach: true
+    buildspec:
+      url: github.com/toscanini/docker-mongodb
+    
       
