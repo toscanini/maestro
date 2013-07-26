@@ -171,7 +171,8 @@ class Service:
       self.log.error('Never found service %s on port %s', service, port)
       raise ContainerError("Couldn't find required services, aborting")
 
-    return service_ip + ":" + str(port)
+    #return service_ip + ":" + str(port)
+    return service_ip
 
   def _handleRequire(self, container, wait_time):
     env = []
@@ -205,4 +206,6 @@ class Service:
         config['config']['environment'] += env
       else:
         config['config']['environment'] = env
+
+      print config['config']['environment']
     
