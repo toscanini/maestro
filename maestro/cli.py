@@ -139,8 +139,6 @@ class MaestroCli(cmdln.Cmdln):
         
         ${cmd_option_list}
       """
-      # TODO: this doesn't do anything yet.
-      exit(-1)
       container = None
       if (len(sys.argv) <= 2):
         sys.stderr.write("Error: Container name must be provided\n")

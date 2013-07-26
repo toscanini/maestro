@@ -55,7 +55,6 @@ class Template:
     config = copy.deepcopy(self.config['config'])
     if command:
       config['command'] = command
-
     return container.Container(name, {'image_id': self.config['image_id']}, config)
 
   def destroy(self):

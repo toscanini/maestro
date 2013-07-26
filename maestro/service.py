@@ -24,7 +24,7 @@ class Service:
       data = open(conf_file, 'r')
       self.config = yaml.load(data)
       
-    # On load order containers into the proper startup sequence      
+    # On load, order containers into the proper startup sequence      
     self.start_order = utils.order(self.config['containers'])
 
   def get(self, container):
@@ -113,7 +113,15 @@ class Service:
       output_file.write(self.dump())
 
   def run(self, template, commandline=None):
-    raise Exception("Not implemented yet")
+    if template in self.templates:
+      # TODO: name need to be dynamic here. Need to handle static and temporary cases.
+      container = self.templates[template].instantiate(template + "32", commandline)
+      container.run()
+
+      return container
+    else:
+      # Should handle arbitrary containers
+      raise ContainerError("Unknown template")
 
   def status(self):
     columns = "{0:<14}{1:<19}{2:<44}{3:<11}\n" 
