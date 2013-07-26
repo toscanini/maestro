@@ -1,6 +1,6 @@
 import docker
 import exceptions, utils, container
-import StringIO, copy, logging
+import StringIO, copy, logging, sys
 from requests.exceptions import HTTPError
 
 
@@ -92,6 +92,7 @@ class Template:
       raise exceptions.TemplateError("Can't build if no buildspec is provided: " + self.name)
     
     if result[0] == None:
+      print result
       raise exceptions.TemplateError("Build failed for template: " + self.name)
     
     # TODO: figure out what to do with the result of this execution

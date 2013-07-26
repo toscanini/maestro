@@ -126,8 +126,8 @@ class Service:
       raise ContainerError("Unknown template")
 
   def ps(self):
-    columns = "{0:<14}{1:<19}{2:<44}{3:<11}\n" 
-    result = columns.format("ID", "NODE", "COMMAND", "STATUS")
+    columns = "{0:<14}{1:<19}{2:<44}{3:<11}{4:<15}\n" 
+    result = columns.format("ID", "NODE", "COMMAND", "STATUS", "PORTS")
     for container in self.containers:
       container_id = self.containers[container].state['container_id']
       
@@ -139,13 +139,16 @@ class Service:
         state = docker.Client().inspect_container(container_id)
         command = string.join([state['Path']] + state['Args'])
         command = (command[:40] + '..') if len(command) > 42 else command
-        
+        p = state['NetworkSettings']['PortMapping']['Tcp']
+        ports = ""
+        for port in p:
+          ports += p[port] + "->" + port
         if state['State']['Running']:
           status = 'Running'
       except HTTPError:
         status = 'Destroyed'
 
-      result += columns.format(container_id, node_name, command, status)
+      result += columns.format(container_id, node_name, command, status, ports)
 
     return result.rstrip('\n')
 
