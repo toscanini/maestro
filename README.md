@@ -104,19 +104,23 @@ The environment state will be saved to a file named `environment.yml` and comman
 
 Setup a new environment using a `maestro.yml` specification.
 
-`maestro start`
+`maestro start [node_name]`
 
-Start an existing environment that had been previously stopped and saved in `environment.yml`
+Start an existing environment that had been previously stopped and saved in `environment.yml`. If node_name is provided just that node will be stopped.
 
-`maestro stop`
+`maestro stop [node_name]`
 
-Stop all containers in an environment and save the state to `environment.yml`
+Stop all containers in an environment and save the state to `environment.yml` If node_name is provided just that node will be stopped.
+
+`maestro run template [commandline]
+
+Run a new instance of the template in the environment. *Limited functionality on this currently*
 
 `maestro destroy`
 
 Destroy all containers defined in an environment. Once destroyed the containers can not be recoved.
 
-`maestro status`
+`maestro ps`
 
 Show the status of the containers in an environment.
 
