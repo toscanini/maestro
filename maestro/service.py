@@ -206,6 +206,4 @@ class Service:
         config['config']['environment'] += env
       else:
         config['config']['environment'] = env
-
-      print config['config']['environment']
     
