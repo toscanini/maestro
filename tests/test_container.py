@@ -3,6 +3,8 @@ sys.path.append('.')
 from maestro import container, exceptions, utils
 from requests.exceptions import HTTPError
 
+utils.setQuiet(True)
+
 class TestContainer(unittest.TestCase):
   def testInit(self):
   #  with self.assertRaises(exceptions.ContainerError) as e:

@@ -3,6 +3,8 @@ import unittest, sys, yaml, os
 sys.path.append('.')
 from maestro import template, utils, exceptions
 
+utils.setQuiet(True)
+
 class TestTemplate(unittest.TestCase):
 
   def testBuild(self):

@@ -25,13 +25,16 @@ class Container:
     self._start_container()
 
   def start(self):
+    utils.status("Starting container %s - %s" % (self.name, self.state['container_id'])) 
     self.docker_client.start(self.state['container_id'])
   
   def stop(self, timeout=10):
+    utils.status("Stopping container %s - %s" % (self.name, self.state['container_id']))     
     self.docker_client.stop(self.state['container_id'], timeout=timeout)
     
   def destroy(self, timeout=None):
     self.stop(timeout)
+    utils.status("Destroying container %s - %s" % (self.name, self.state['container_id']))         
     self.docker_client.remove_container(self.state['container_id'])    
 
   def get_ip_address(self):

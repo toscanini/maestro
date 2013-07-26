@@ -4,6 +4,8 @@ sys.path.append('.')
 from maestro import service
 from requests.exceptions import HTTPError
 
+utils.setQuiet(True)
+
 class TestContainer(unittest.TestCase):
   def setUp(self):
     self.mix = service.Service('fixtures/default.yml')

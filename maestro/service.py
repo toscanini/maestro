@@ -1,10 +1,8 @@
 import docker
 import os, sys, yaml, copy, string, StringIO
-import maestro, template
+import maestro, template, utils
 from requests.exceptions import HTTPError
 from .container import Container
-
-import utils
 
 class ContainerError(Exception):
   pass
@@ -41,8 +39,10 @@ class Service:
       self._handleRequire(tmpl, wait_time)
       
       # Create the template. The service name and version will be dynamic once the new config format is implemented
+      utils.status("Building template %s" % (tmpl))
       tmpl_instance = template.Template(tmpl, config, 'service', '0.1')
       tmpl_instance.build()
+
 
       self.templates[tmpl] = tmpl_instance
 
@@ -57,6 +57,7 @@ class Service:
         if tag_name > 1:
           name = name + "__" + str(count)
 
+        utils.status("Launching instance of template %s named %s" % (tmpl, name))      
         instance = tmpl_instance.instantiate(name)
         instance.run()
 
@@ -66,30 +67,24 @@ class Service:
       
   def destroy(self, timeout=None):
     for container in self.containers:
-      self.log.info('Destroying container: %s', container)      
       self.containers[container].destroy(timeout)     
 
   def start(self, container=None, wait_time=60):
     # If a container is provided we just start that container
     # TODO: may need an abstraction here to handle names of multi-container groups
     if container:
-      self.log.info('Starting container: %s', container)      
       self.containers[container].start()  
     else:
-      for container in self.start_order:
-        self.log.info('Starting container: %s', container)      
-        
+      for container in self.start_order:  
         self._handleRequire(container, wait_time)
         
         self.containers[container].start()
 
   def stop(self, container=None, timeout=None):
     if container:
-      self.log.info('Stopping container: %s', container)      
       self.containers[container].stop(timeout)
     else:
       for container in self.containers:     
-        self.log.info('Stopping container: %s', container)      
         self.containers[container].stop(timeout)
 
   def load(self, filename='envrionment.yml'):
@@ -168,13 +163,15 @@ class Service:
   def _pollService(self, container, service, port, wait_time):
     # Based on start_order the service should already be running
     service_ip = self.containers[service].get_ip_address()
-    self.log.info('Starting %s: waiting for service %s on ip %s and port %s', container, service, service_ip, port)            
-    
+    utils.status('Starting %s: waiting for service %s on ip %s and port %s' % (container, service, service_ip, port))
+     
     result = utils.waitForService(service_ip, int(port), wait_time)
     if result < 0:
-      self.log.error('Never found service %s on port %s', service, port)
+      utils.status('Never found service %s on port %s' % (service, port))
       raise ContainerError("Couldn't find required services, aborting")
 
+    utils.status('Found service %s on ip %s and port %s' % (service, service_ip, port))
+    
     #return service_ip + ":" + str(port)
     return service_ip
 
@@ -201,7 +198,7 @@ class Service:
 
             env.append(service.upper() + "=" + " ".join(service_env))
       except:
-        self.log.error('Failure on require. Shutting down the environment')
+        utils.status('Failure on require. Shutting down the environment')
         self.destroy()
         raise
       

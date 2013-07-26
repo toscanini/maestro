@@ -13,6 +13,20 @@ def setupLogging():
   log.addHandler(filehandler)  
   return log
 
+quiet=False
+def setQuiet(state=True):
+  global quiet
+  quiet = state
+
+# Display the status 
+def status(string):
+  global quiet
+  log = logging.getLogger('maestro')  
+  log.info(string)
+  
+  if not quiet:
+    print string
+
 def order(raw_list):
   def _process(wait_list):
     new_wait = []
