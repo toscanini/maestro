@@ -53,7 +53,38 @@ class MaestroCli(cmdln.Cmdln):
 
         containers.save(environment)
 
-      print "Environment launched."
+      print "Launched."
+
+
+    def do_deploy(self, subcmd, opts, *args):
+      """Setup and start a set of Docker containers from a git repo.
+
+        usage:
+            deploy git_repo_url
+        
+        ${cmd_option_list}
+      """
+      config = opts.maestro_file
+      if not config:
+        config = os.path.join(os.getcwd(), 'maestro.yml')
+
+      if not config.startswith('/'):
+        config = os.path.join(os.getcwd(), config)
+
+      if not os.path.exists(config):
+        sys.stderr.write("No maestro configuration found {0}\n".format(config))
+        exit(1)
+      
+      containers = service.Service(config)
+      containers.build()
+      if (not opts.no_save):
+        environment = opts.environment_file
+        if not environment:  
+          environment = os.path.join(os.getcwd(), 'environment.yml')
+
+        containers.save(environment)
+
+      print "Environment launched."    
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
@@ -74,7 +105,7 @@ class MaestroCli(cmdln.Cmdln):
       containers = service.Service(environment=environment)
       containers.start(container) 
 
-      print "Environment started."
+      print "Started."
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
@@ -95,7 +126,7 @@ class MaestroCli(cmdln.Cmdln):
       containers = service.Service(environment=environment)
       containers.stop(container) 
 
-      print "Environment stopped."
+      print "Stopped."
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
@@ -110,7 +141,7 @@ class MaestroCli(cmdln.Cmdln):
       self.do_stop('stop', opts, args)
       self.do_start('start', opts, args)
 
-      print "Environment restarted."
+      print "Restarted."
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
@@ -127,7 +158,7 @@ class MaestroCli(cmdln.Cmdln):
       containers = service.Service(environment=environment)
       containers.destroy() 
 
-      print "Environment destroyed."
+      print "Destroyed."
  
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
