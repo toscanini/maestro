@@ -1,11 +1,11 @@
 import os
 import docker
 from exceptions import ContainerError
-import utils, StringIO
+import utils, StringIO, logging
 
 class Container:
   def __init__(self, name, state, config):
-    self.log = utils.setupLogging()
+    self.log = logging.getLogger('maestro')
     
     self.state = state    
     self.config = config

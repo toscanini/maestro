@@ -7,7 +7,7 @@ def setupLogging():
   log.setLevel(logging.DEBUG)
 
   formatter = logging.Formatter("%(asctime)s %(levelname)-10s %(message)s")
-  filehandler = logging.FileHandler('maestro.log', 'w')
+  filehandler = logging.FileHandler('maestro.log')
   filehandler.setLevel(logging.DEBUG)
   filehandler.setFormatter(formatter)
   log.addHandler(filehandler)  

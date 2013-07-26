@@ -1,6 +1,6 @@
 import docker
 import exceptions, utils, container
-import StringIO, copy
+import StringIO, copy, logging
 from requests.exceptions import HTTPError
 
 
@@ -10,7 +10,7 @@ class Template:
     self.config   = config
     self.service  = service
     self.version  = version
-    self.log      = utils.setupLogging()
+    self.log      = logging.getLogger('maestro')
 
     self.docker_client = docker.Client()
 
