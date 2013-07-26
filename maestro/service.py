@@ -24,19 +24,19 @@ class Service:
       data = open(conf_file, 'r')
       self.config = yaml.load(data)
       
-    # On load, order containers into the proper startup sequence      
-    self.start_order = utils.order(self.config['containers'])
+    # On load, order templates into the proper startup sequence      
+    self.start_order = utils.order(self.config['templates'])
 
   def get(self, container):
     return self.containers[container]
 
   def build(self, wait_time=60):
     for tmpl in self.start_order:      
-      if not self.config['containers'][tmpl]:
+      if not self.config['templates'][tmpl]:
         sys.stderr.write("Error: no configuration found for template: " + tmpl + "\n")
         exit(1)
 
-      config = self.config['containers'][tmpl]
+      config = self.config['templates'][tmpl]
 
       self._handleRequire(tmpl, wait_time)
       
@@ -118,12 +118,14 @@ class Service:
       container = self.templates[template].instantiate(template + "32", commandline)
       container.run()
 
+      # for dynamic runs there  needs to be a way to display the output of the command.
+
       return container
     else:
       # Should handle arbitrary containers
       raise ContainerError("Unknown template")
 
-  def status(self):
+  def ps(self):
     columns = "{0:<14}{1:<19}{2:<44}{3:<11}\n" 
     result = columns.format("ID", "NODE", "COMMAND", "STATUS")
     for container in self.containers:
@@ -174,7 +176,7 @@ class Service:
   def _handleRequire(self, container, wait_time):
     env = []
     # Wait for any required services to finish registering        
-    config = self.config['containers'][container]
+    config = self.config['templates'][container]
     if 'require' in config:
       try:
         # Containers can depend on mulitple services

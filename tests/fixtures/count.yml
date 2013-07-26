@@ -1,4 +1,4 @@
-containers:
+templates:
   service1: 
     base_image: ubuntu
     count: 3

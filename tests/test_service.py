@@ -12,12 +12,12 @@ class TestContainer(unittest.TestCase):
   def tearDown(self):
     self.mix.destroy(timeout=1)
   
-  @unittest.skip("skipping")  
+  #@unittest.skip("skipping")  
   def testBuild(self):
     env = yaml.load(self.mix.dump())
     self._configCheck(env)   
 
-  @unittest.skip("Skipping")
+  #@unittest.skip("Skipping")
   def testBuildDockerfile(self):
     mix = service.Service('fixtures/dockerfile.yml')
     mix.build()
@@ -44,7 +44,7 @@ class TestContainer(unittest.TestCase):
     mix.destroy(timeout=1)
         
   
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testPorts(self):
     env = yaml.load(self.mix.dump())
     self.mix.save()
@@ -60,7 +60,7 @@ class TestContainer(unittest.TestCase):
         # Shouldn't get here
         self.assertFalse(True)
   
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testDestroy(self):
     mix = service.Service('fixtures/default.yml')
     mix.build()
@@ -74,7 +74,7 @@ class TestContainer(unittest.TestCase):
 
       self.assertEqual(str(e.exception), '404 Client Error: Not Found')
   
-  @unittest.skip("skipping")  
+  #@unittest.skip("skipping")  
   def testSave(self):
     self.mix.save()
     with open('environment.yml', 'r') as input_file:
@@ -82,7 +82,7 @@ class TestContainer(unittest.TestCase):
 
     self._configCheck(env)  
 
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testDependencyEnv(self):
     mix = service.Service('fixtures/count.yml')
         
@@ -98,7 +98,7 @@ class TestContainer(unittest.TestCase):
       
     mix.destroy(timeout=1)
   
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testCount(self):
     mix = service.Service('fixtures/count.yml')
         
@@ -118,7 +118,7 @@ class TestContainer(unittest.TestCase):
     
     mix.destroy(timeout=1)
 
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testRequire(self):
     mix = service.Service('fixtures/require.yml')
     
@@ -141,7 +141,7 @@ class TestContainer(unittest.TestCase):
     
     mix.destroy(timeout=1)
 
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testStop(self):
     mix = service.Service('fixtures/startstop.yml')
     mix.build()
@@ -180,7 +180,7 @@ class TestContainer(unittest.TestCase):
 
     mix.destroy(timeout=1)
 
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testStart(self):  
     mix = service.Service('fixtures/startstop.yml')
     mix.build()
@@ -220,12 +220,12 @@ class TestContainer(unittest.TestCase):
 
     mix.destroy(timeout=1)
   
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testStatus(self):
     mix = service.Service('fixtures/startstop.yml')
     mix.build()
     
-    status = mix.status() 
+    status = mix.ps() 
 
     lines = status.split("\n")
     # Skip over the headers
@@ -237,7 +237,7 @@ class TestContainer(unittest.TestCase):
 
     mix.destroy(timeout=1)
 
-    status = mix.status() 
+    status = mix.ps() 
 
     lines = status.split("\n")
     # Skip over the headers
@@ -247,7 +247,7 @@ class TestContainer(unittest.TestCase):
         self.assertIn(line[14:29].rstrip(),  ['test_server_1', 'test_server_2'])
         self.assertEqual(line[77:87].rstrip(), "Destroyed")
 
-  @unittest.skip("skipping")
+  #@unittest.skip("skipping")
   def testLoad(self):
     self.mix.save()
     mix = service.Service(environment = 'environment.yml')

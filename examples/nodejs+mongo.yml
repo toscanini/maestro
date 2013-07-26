@@ -1,7 +1,7 @@
 --environment:
 --  name: Node.js / Mongo Deployment Platform
 --  version: 0.1
-containers:
+templates:
   nodejs: 
     base_image: kstaken/nodejs
     config:

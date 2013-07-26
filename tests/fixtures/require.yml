@@ -1,4 +1,4 @@
-containers:
+templates:
   test_server_1: 
     base_image: ubuntu
     config:

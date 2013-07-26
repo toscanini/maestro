@@ -156,18 +156,18 @@ class MaestroCli(cmdln.Cmdln):
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
-    def do_status(self, subcmd, opts, *args):
+    def do_ps(self, subcmd, opts, *args):
       """Show the status of a set of containers as defined in an environment file. 
 
         usage:
-            status
+            ps
         
         ${cmd_option_list}
       """
       environment = self._verify_environment(opts.environment_file)
       
       containers = service.Service(environment=environment)
-      print containers.status() 
+      print containers.ps() 
 
     def _verify_environment(self, environment):
       if not environment:  

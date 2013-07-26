@@ -46,7 +46,9 @@ Then:
 Configuration File Format
 =========================
 
-YAML format basically maps to the docker-py api. 
+**Note:** This format is changing heavily.
+
+The configuration file defines an environment that is made up of multiple templates that can be used to generate containers. The templates can have relationships defined between them to specify start order and Maestro will handle starting instances of the templates in containers in the correct order and then providing environment configuration to the containers.
 
 `base_image` is the Docker container to use to run the command. It must already exist on the system and won't be pulled automatically.
 
@@ -57,7 +59,7 @@ You can use `require` to specify dependencies between services. The start order 
 Here's an example yaml file:
 
 ```
-  containers:
+  templates:
     test_server_1:
       base_image: ubuntu
       config:
@@ -90,8 +92,6 @@ Here's an example yaml file:
 **Note:** *Command is required by the Docker Python api and having to specify it here can cause problems with images that pre-define entrypoints and commands.*
 
 **Note:** *the syntax for volumes is not fully specified and bind mounts are not currently supported.*
-
-**Note:** *There is basic support for embedding dockerfiles in the specification but the details of how that works is going to change.*
 
 Command Line Tools
 ===
