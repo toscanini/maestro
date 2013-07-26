@@ -135,12 +135,13 @@ class Service:
 
       command = ''
       status = 'Stopped'
+      ports = ''
       try:
         state = docker.Client().inspect_container(container_id)
         command = string.join([state['Path']] + state['Args'])
         command = (command[:40] + '..') if len(command) > 42 else command
         p = state['NetworkSettings']['PortMapping']['Tcp']
-        ports = ""
+        
         for port in p:
           ports += p[port] + "->" + port
         if state['State']['Running']:
