@@ -3,11 +3,33 @@ Maestro
 
 A command line tool for Container orchestration and management in multi-container docker environments. Container sets are defined in a simple YAML format that mirrors the options available in the Docker API. The intention is to be able to easily launch, orchestrate and destroy complex multi-node envionments for testing and development.
 
+This is what it currently looks like to use maestro and deploy a multi-tier node.js/mongodb application. All that's required is a maestro.yml in the root of the repository.
+
+```
+$ git clone https://github.com/kstaken/express-todo-example.git
+$ cd express-todo-example && maestro build
+Building template mongodb
+Launching instance of template mongodb named mongodb
+Starting container mongodb - 8e766a36e5be
+Starting nodejs: waiting for service mongodb on ip 172.16.1.83 and port 27017
+Found service mongodb on ip 172.16.1.83 and port 27017
+Building template nodejs
+Launching instance of template nodejs named nodejs
+Starting container nodejs - 40053c060f27
+Launched.
+
+$ maestro ps
+ID            NODE               COMMAND                                     STATUS     PORTS
+8e766a36e5be  mongodb            /usr/bin/mongod --config /etc/mongodb.conf  Running
+40053c060f27  nodejs             /usr/bin/node /var/www/app.js               Running    49289->80
+```
+
+And the app would be accessible on http://localhost:49289/.
 
 Status
 ======
 
-Early development. Certainly lots of bugs and not quite useful yet but getting close. The configuration format in particular is changing heavily.
+Early development. It can be useful for testing and development but the feature set and configuration format are changing rapidly.
 
 Note: this project used to be called DockerMix.
 
