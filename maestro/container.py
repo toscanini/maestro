@@ -12,6 +12,9 @@ class Container:
 
     self.name = name
     
+    if 'hostname' not in self.config:
+      self.config['hostname'] = name
+      
     #if 'command' not in self.config:
     #  self.log.error("Error: No command specified for container " + name + "\n")
     #  raise ContainerError('No command specified in configuration') 

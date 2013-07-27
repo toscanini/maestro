@@ -138,7 +138,9 @@ class Service:
         p = state['NetworkSettings']['PortMapping']['Tcp']
         
         for port in p:
-          ports += p[port] + "->" + port
+          if ports:
+            ports += ", "
+          ports += p[port] + "->" + port 
         if state['State']['Running']:
           status = 'Running'
       except HTTPError:
