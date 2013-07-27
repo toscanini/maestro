@@ -92,11 +92,9 @@ class Template:
       raise exceptions.TemplateError("Can't build if no buildspec is provided: " + self.name)
     
     if result[0] == None:
+      # TODO: figure out what to do with the result of this execution
       print result
       raise exceptions.TemplateError("Build failed for template: " + self.name)
-    
-    # TODO: figure out what to do with the result of this execution
-    #self.log.info('Result of docker build:', str(result))      
 
     self.config['image_id'] = result[0]
     
