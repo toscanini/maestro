@@ -103,9 +103,9 @@ class MaestroCli(cmdln.Cmdln):
       environment = self._verify_environment(opts.environment_file)
       
       containers = service.Service(environment=environment)
-      containers.start(container) 
-
-      print "Started."
+      if containers.start(container):
+        containers.save(environment)
+        print "Started."
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
@@ -124,9 +124,9 @@ class MaestroCli(cmdln.Cmdln):
       environment = self._verify_environment(opts.environment_file)
       
       containers = service.Service(environment=environment)
-      containers.stop(container) 
-
-      print "Stopped."
+      if containers.stop(container):
+        containers.save(environment)
+        print "Stopped."
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
@@ -141,8 +141,6 @@ class MaestroCli(cmdln.Cmdln):
       self.do_stop('stop', opts, args)
       self.do_start('start', opts, args)
 
-      print "Restarted."
-
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
     def do_destroy(self, subcmd, opts, *args):
@@ -156,9 +154,9 @@ class MaestroCli(cmdln.Cmdln):
       environment = self._verify_environment(opts.environment_file)
       
       containers = service.Service(environment=environment)
-      containers.destroy() 
-
-      print "Destroyed."
+      if containers.destroy():
+        containers.save(environment)
+        print "Destroyed."
  
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
@@ -182,6 +180,7 @@ class MaestroCli(cmdln.Cmdln):
       
       containers = service.Service(environment=environment)
       containers.run(template, commandline) 
+      containers.save(environment)
 
       print "Running a new instance of " + template     
 

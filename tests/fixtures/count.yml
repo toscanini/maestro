@@ -14,4 +14,3 @@ templates:
       service1:
         count: 3
         port: 8080
-    

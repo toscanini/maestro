@@ -1,7 +1,7 @@
 import unittest, sys, yaml
 import docker
 sys.path.append('.')
-from maestro import service
+from maestro import service, utils
 from requests.exceptions import HTTPError
 
 utils.setQuiet(True)

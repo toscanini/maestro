@@ -51,6 +51,7 @@ class Service:
       self._handleRequire(tmpl, wait_time)
 
       tmpl_instance = self.templates[tmpl]
+      config = self.config['templates'][tmpl]
       
       # If count is defined in the config then we're launching multiple instances of the same thing
       # and they'll need to be tagged accordingly. Count only applies on build.
@@ -71,13 +72,19 @@ class Service:
         
         count = count - 1
       
-  def destroy(self, timeout=None):
+  def destroy(self, timeout=None):   
     for container in self.containers:
       self.log.info('Destroying container: %s', container)      
       self.containers[container].destroy(timeout) 
-    self.state = 'destroyed'    
 
+    self.state = 'destroyed'    
+    return True
+    
   def start(self, container=None, wait_time=60):
+    if not self._live():
+      utils.status("Environment has been destroyed and can't be started")
+      return False
+
     # If a container is provided we just start that container
     # TODO: may need an abstraction here to handle names of multi-container groups
     if container:
@@ -87,13 +94,21 @@ class Service:
         self._handleRequire(container, wait_time)
         
         self.containers[container].start()
-
+    return True
+    
   def stop(self, container=None, timeout=None):
+    if not self._live():
+      utils.status("Environment has been destroyed and can't be stopped.")
+      return False
+     
     if container:
       self.containers[container].stop(timeout)
     else:
       for container in self.containers:     
+        print "stopping " + container
         self.containers[container].stop(timeout)
+
+    return True
 
   def load(self, filename='envrionment.yml'):
     self.log.info('Loading environment from: %s', filename)      
@@ -102,7 +117,7 @@ class Service:
       self.config = yaml.load(input_file)
 
       self.state = self.config['state']
-      print state
+      
       for tmpl in self.config['templates']:
         # TODO fix hardcoded service name and version
         self.templates[tmpl] = template.Template(tmpl, self.config['templates'][tmpl], 'service', '0.1')
@@ -174,6 +189,9 @@ class Service:
       result['containers'][container] = self.containers[container].state
 
     return yaml.dump(result, Dumper=yaml.SafeDumper)
+  
+  def _live(self):
+    return self.state == 'live'
 
   def _pollService(self, container, service, port, wait_time):
     # Based on start_order the service should already be running
