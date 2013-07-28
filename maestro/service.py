@@ -12,6 +12,7 @@ class Service:
     self.log = utils.setupLogging()
     self.containers = {}
     self.templates = {}
+    self.state = 'live'
 
     if environment:
       self.load(environment)      
@@ -29,14 +30,13 @@ class Service:
     return self.containers[container]
 
   def build(self, wait_time=60):
-    for tmpl in self.start_order:      
+    # Setup and build all the templates
+    for tmpl in self.start_order:          
       if not self.config['templates'][tmpl]:
         sys.stderr.write("Error: no configuration found for template: " + tmpl + "\n")
         exit(1)
 
       config = self.config['templates'][tmpl]
-
-      self._handleRequire(tmpl, wait_time)
       
       # Create the template. The service name and version will be dynamic once the new config format is implemented
       utils.status("Building template %s" % (tmpl))
@@ -46,6 +46,12 @@ class Service:
 
       self.templates[tmpl] = tmpl_instance
 
+    # Start the envrionment
+    for tmpl in self.start_order:            
+      self._handleRequire(tmpl, wait_time)
+
+      tmpl_instance = self.templates[tmpl]
+      
       # If count is defined in the config then we're launching multiple instances of the same thing
       # and they'll need to be tagged accordingly. Count only applies on build.
       count = tag_name = 1
@@ -67,7 +73,9 @@ class Service:
       
   def destroy(self, timeout=None):
     for container in self.containers:
-      self.containers[container].destroy(timeout)     
+      self.log.info('Destroying container: %s', container)      
+      self.containers[container].destroy(timeout) 
+    self.state = 'destroyed'    
 
   def start(self, container=None, wait_time=60):
     # If a container is provided we just start that container
@@ -93,6 +101,8 @@ class Service:
     with open(filename, 'r') as input_file:
       self.config = yaml.load(input_file)
 
+      self.state = self.config['state']
+      print state
       for tmpl in self.config['templates']:
         # TODO fix hardcoded service name and version
         self.templates[tmpl] = template.Template(tmpl, self.config['templates'][tmpl], 'service', '0.1')
@@ -154,6 +164,7 @@ class Service:
 
   def dump(self):
     result = {}
+    result['state'] = self.state
     result['templates'] = {}
     for template in self.templates:      
       result['templates'][template] = self.templates[template].config
@@ -179,10 +190,10 @@ class Service:
     #return service_ip + ":" + str(port)
     return service_ip
 
-  def _handleRequire(self, container, wait_time):
+  def _handleRequire(self, tmpl, wait_time):
     env = []
     # Wait for any required services to finish registering        
-    config = self.config['templates'][container]
+    config = self.config['templates'][tmpl]
     if 'require' in config:
       try:
         # Containers can depend on mulitple services
@@ -195,10 +206,10 @@ class Service:
             if count > 1:
               while count > 0:
                 name = service + "__" + str(count)
-                service_env.append(self._pollService(container, name, port, wait_time))
+                service_env.append(self._pollService(tmpl, name, port, wait_time))
                 count = count - 1                
             else:
-              service_env.append(self._pollService(container, service, port, wait_time))
+              service_env.append(self._pollService(tmpl, service, port, wait_time))
 
             env.append(service.upper() + "=" + " ".join(service_env))
       except:
