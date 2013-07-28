@@ -104,8 +104,7 @@ class Service:
     if container:
       self.containers[container].stop(timeout)
     else:
-      for container in self.containers:     
-        print "stopping " + container
+      for container in self.containers:             
         self.containers[container].stop(timeout)
 
     return True
