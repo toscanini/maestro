@@ -1,17 +1,13 @@
 templates:
   salt_master: 
-    base_image: ubuntu
     config:
       command: /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
-      detach: true
     buildspec:
       url: github.com/toscanini/docker-salt-master
   salt_minion:     
-    base_image: ubuntu
     count: 10
     config:
       command: /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
-      detach: true
     buildspec:
       url: github.com/toscanini/docker-salt-minion
     require:

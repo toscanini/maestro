@@ -79,10 +79,8 @@ In this instance the templates are built from repositories stored on Github but 
 ```
 templates:
   nodejs: 
-    base_image: ubuntu
     config:
       command: /usr/bin/node /var/www/app.js
-      detach: true
       ports: 
         - '80'  
       environment:
@@ -93,10 +91,8 @@ templates:
       mongodb: 
         port: '27017'
   mongodb:     
-    base_image: ubuntu
     config:
       command: /usr/bin/mongod --config /etc/mongodb.conf
-      detach: true
     buildspec:
       url: github.com/toscanini/docker-mongodb
 ```
@@ -107,7 +103,7 @@ Templates also define a basic docker configuration so that you can pre-define th
 
 `base_image` is the Docker container to use to run the command. It must already exist on the system and won't be pulled automatically.
 
-`base_image` and `command` are the only required options. 
+`base_image` and `command` are the only required options if no `buildspec` is provided. If `buildspec` is provided `base_image` can be omitted
 
 You can use `require` to specify dependencies between services. The start order will be adjusted and any container that requires a port on a another container will wait for that port to become available before starting.
 

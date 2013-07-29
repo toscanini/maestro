@@ -4,8 +4,7 @@
 templates:
   nodejs: 
     config:
-      command: /usr/bin/node /var/www/app.js
-      detach: true
+      command: /usr/bin/node /var/www/app.js      
       ports: 
         - '80'  
       environment:
@@ -17,8 +16,7 @@ templates:
         port: '27017'
   mongodb:     
     config:
-      command: /usr/bin/mongod --config /etc/mongodb.conf
-      detach: true
+      command: /usr/bin/mongod --config /etc/mongodb.conf      
     buildspec:
       url: github.com/toscanini/docker-mongodb
     
