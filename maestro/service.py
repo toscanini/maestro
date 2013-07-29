@@ -88,6 +88,9 @@ class Service:
     # If a container is provided we just start that container
     # TODO: may need an abstraction here to handle names of multi-container groups
     if container:
+      # THis is not going to work right if starting a container from a collection
+      self._handleRequire(self.containers[container].state['template'], wait_time)
+        
       self.containers[container].start()  
     else:
       for container in self.start_order:  
@@ -131,14 +134,17 @@ class Service:
     with open(filename, 'w') as output_file:
       output_file.write(self.dump())
 
-  def run(self, template, commandline=None):
+  def run(self, template, commandline=None, wait_time=60):
     if template in self.templates:
+      self._handleRequire(template, wait_time)
+      
+      name = template + "-" + str(os.getpid())
       # TODO: name need to be dynamic here. Need to handle static and temporary cases.
-      container = self.templates[template].instantiate(template + "32", commandline)
+      container = self.templates[template].instantiate(name, commandline)
       container.run()
 
       # for dynamic runs there  needs to be a way to display the output of the command.
-
+      self.containers[name] = container
       return container
     else:
       # Should handle arbitrary containers

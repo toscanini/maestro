@@ -9,7 +9,6 @@ class Container:
     
     self.state = state    
     self.config = config
-
     self.name = name
     
     if 'hostname' not in self.config:

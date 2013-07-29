@@ -3,7 +3,6 @@ import exceptions, utils, container
 import StringIO, copy, logging, sys
 from requests.exceptions import HTTPError
 
-
 class Template:
   def __init__(self, name, config, service, version):
     self.name     = name    
@@ -55,7 +54,7 @@ class Template:
     config = copy.deepcopy(self.config['config'])
     if command:
       config['command'] = command
-    return container.Container(name, {'image_id': self.config['image_id']}, config)
+    return container.Container(name, {'template': self.name, 'image_id': self.config['image_id']}, config)
 
   def destroy(self):
     # If there is an image_id then we need to destroy the image.
