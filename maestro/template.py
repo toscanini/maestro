@@ -14,20 +14,7 @@ class Template:
     self.docker_client = docker.Client()
 
   def build(self):
-    # verify the base image and pull it if necessary
-    try:
-      base = self.config['base_image']    
-      self.docker_client.inspect_image(base)
-    except HTTPError:
-      # Attempt to pull the image.
-      self.log.info('Attempting to pull base: %s', base)
-      result = self.docker_client.pull(base)
-      if 'error' in result:
-        self.log.error('No base image could be pulled under the name: %s', base)      
-        raise exceptions.TemplateError("No base image could be pulled under the name: " + base)
-    except KeyError:
-      raise exceptions.TemplateError("Template: " + self.name + "No base image specified.")
-
+ 
     # If there is a docker file or url hand off to Docker builder    
     if 'buildspec' in self.config:
       if self.config['buildspec']:
@@ -38,14 +25,27 @@ class Template:
       else:
         raise exceptions.TemplateError("Template: " + self.name + " Buildspec specified but no dockerfile or url found.")
     else:
-      # We're just operating off the base so add our tags to that image.
-        # Well there doesn't seem to be a way to currently remove tags so we'll generate a new image.
-        # More consistent for all cases this way too but it does feel kinda wrong.
-        dockerfile = """
-        FROM %s
-        MAINTAINER %s
-        """ % (base, self._mid())
-        self._build(dockerfile=dockerfile)
+      # verify the base image and pull it if necessary
+      try:
+        base = self.config['base_image']    
+        self.docker_client.inspect_image(base)
+      except HTTPError:
+        # Attempt to pull the image.
+        self.log.info('Attempting to pull base: %s', base)
+        result = self.docker_client.pull(base)
+        if 'error' in result:
+          self.log.error('No base image could be pulled under the name: %s', base)      
+          raise exceptions.TemplateError("No base image could be pulled under the name: " + base)
+      except KeyError:
+        raise exceptions.TemplateError("Template: " + self.name + "No base image specified.")
+
+      # There doesn't seem to be a way to currently remove tags so we'll generate a new image.
+      # More consistent for all cases this way too but it does feel kinda wrong.
+      dockerfile = """
+      FROM %s
+      MAINTAINER %s
+      """ % (base, self._mid())
+      self._build(dockerfile=dockerfile)
 
     return True
 

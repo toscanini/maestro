@@ -3,7 +3,6 @@
 --  version: 0.1
 templates:
   nodejs: 
-    base_image: ubuntu
     config:
       command: /usr/bin/node /var/www/app.js
       detach: true
@@ -17,7 +16,6 @@ templates:
       mongodb: 
         port: '27017'
   mongodb:     
-    base_image: ubuntu
     config:
       command: /usr/bin/mongod --config /etc/mongodb.conf
       detach: true
