@@ -29,7 +29,7 @@ class TestContainer(unittest.TestCase):
     c.destroy()
 
     with self.assertRaises(HTTPError) as e:
-      c.docker_client.inspect_container(c.state['container_id'])
+      c.backend.inspect_container(c.state['container_id'])
     
     self.assertEqual(str(e.exception), '404 Client Error: Not Found')
     
