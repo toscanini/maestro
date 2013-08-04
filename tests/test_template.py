@@ -94,7 +94,7 @@ class TestTemplate(unittest.TestCase):
     return yaml.load(file(os.path.join(os.path.dirname(__file__), "fixtures/template", name), "r"))
 
   def _findImage(self, t, name, tag="latest"):
-    result =  t.docker_client.images(name=name)
+    result =  t.backend.images(name=name)
 
     for image in result:
       if image['Tag'] == tag:

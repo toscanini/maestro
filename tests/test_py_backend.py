@@ -1,4 +1,4 @@
-import unittest, sys
+import unittest, sys, StringIO
 sys.path.append('.')
 from maestro import py_backend, exceptions, utils
 from requests.exceptions import HTTPError
@@ -6,6 +6,7 @@ from requests.exceptions import HTTPError
 utils.setQuiet(True)
 
 class TestContainer(unittest.TestCase):
+  #@unittest.skip("skipping")
   def testStartStopRm(self):
     p = py_backend.PyBackend()
     
@@ -27,6 +28,20 @@ class TestContainer(unittest.TestCase):
       
     self.assertEqual(str(e.exception), '404 Client Error: Not Found')
     
+  def testBuildImage(self):
+    dockerfile = """
+      FROM ubuntu
+      MAINTAINER test
+      """
+    p = py_backend.PyBackend()
+    image_id = p.build_image(fileobj=StringIO.StringIO(dockerfile))[0]
+    self.assertEqual(p.inspect_image(image_id)['author'], 'test') 
+
+    p.remove_image(image_id)
+    with self.assertRaises(HTTPError) as e:
+      p.inspect_image(image_id)
+
+  #@unittest.skip("skipping")  
   def testGetIpAddress(self):
     # TODO: image_id will change
     p = py_backend.PyBackend()

@@ -4,6 +4,8 @@ class PyBackend:
   def __init__(self):
     self.docker_client = docker.Client()
 
+  ## Container management
+
   def create_container(self, image_id, config):
     return self._start_container(image_id, config, False) 
 
@@ -23,6 +25,28 @@ class PyBackend:
   def inspect_container(self, container_id):
     self.docker_client.inspect_container(container_id)
   
+  ## Image management
+
+  def build_image(self, fileobj=None, path=None):
+    return self.docker_client.build(path=path, fileobj=fileobj)
+
+  def remove_image(self, image_id):
+    self.docker_client.remove_image(image_id)
+
+  def inspect_image(self, image_id):
+    return self.docker_client.inspect_image(image_id)
+
+  def images(self, name):
+    return self.docker_client.images(name=name)
+
+  def tag_image(self, image_id, name, tag):
+    self.docker_client.tag(image_id, name, tag=tag)
+
+  def pull_image(self, name):
+    return self.docker_client.pull(name)
+  
+  ## Helpers
+
   def get_ip_address(self, container_id):
     state = self.docker_client.inspect_container(container_id)    
     return state['NetworkSettings']['IPAddress']

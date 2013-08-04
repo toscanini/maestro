@@ -18,7 +18,6 @@ class Container:
     #  self.log.error("Error: No command specified for container " + name + "\n")
     #  raise ContainerError('No command specified in configuration') 
       
-    #self.docker_client = docker.Client()
     self.backend = py_backend.PyBackend()
 
   def create(self):

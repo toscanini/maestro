@@ -1,5 +1,4 @@
-import docker
-import exceptions, utils, container
+import exceptions, utils, container, py_backend
 import StringIO, copy, logging, sys
 from requests.exceptions import HTTPError
 
@@ -11,10 +10,9 @@ class Template:
     self.version  = version
     self.log      = logging.getLogger('maestro')
 
-    self.docker_client = docker.Client()
+    self.backend = py_backend.PyBackend()
 
   def build(self):
- 
     # If there is a docker file or url hand off to Docker builder    
     if 'buildspec' in self.config:
       if self.config['buildspec']:
@@ -28,11 +26,11 @@ class Template:
       # verify the base image and pull it if necessary
       try:
         base = self.config['base_image']    
-        self.docker_client.inspect_image(base)
+        self.backend.inspect_image(base)
       except HTTPError:
         # Attempt to pull the image.
         self.log.info('Attempting to pull base: %s', base)
-        result = self.docker_client.pull(base)
+        result = self.backend.pull_image(base)
         if 'error' in result:
           self.log.error('No base image could be pulled under the name: %s', base)      
           raise exceptions.TemplateError("No base image could be pulled under the name: " + base)
@@ -59,7 +57,7 @@ class Template:
   def destroy(self):
     # If there is an image_id then we need to destroy the image.
     if 'image_id' in self.config:      
-      self.docker_client.remove_image(self.config['image_id'])
+      self.backend.remove_image(self.config['image_id'])
     
   def full_name(self):
     return self.service + "." + self.name
@@ -69,7 +67,7 @@ class Template:
     if ':' in base:
       base, tag = base.split(':')
     
-    result = self.docker_client.images(name=base)
+    result = self.backend.images(name=base)
     for image in result:
       if image['Tag'] == tag:
         return image['Id']
@@ -84,9 +82,9 @@ class Template:
     self.log.info('Building container: %s', self._mid())      
 
     if (dockerfile):
-      result = self.docker_client.build(fileobj=StringIO.StringIO(dockerfile))
+      result = self.backend.build_image(fileobj=StringIO.StringIO(dockerfile))
     elif (url):
-      result = self.docker_client.build(path=url)
+      result = self.backend.build_image(path=url)
     else:
       raise exceptions.TemplateError("Can't build if no buildspec is provided: " + self.name)
     
@@ -103,8 +101,8 @@ class Template:
 
   def _tag(self, image_id):
     # Tag the container with the name and process id
-    self.docker_client.tag(image_id, self.service + "." + self.name, tag=self.version)
+    self.backend.tag_image(image_id, self.service + "." + self.name, tag=self.version)
     
     # TODO: make sure this is always appropriate to do as there may be cases where tagging a build as latest isn't desired.
-    self.docker_client.tag(image_id, self.service + "." + self.name, tag='latest')
+    self.backend.tag_image(image_id, self.service + "." + self.name, tag='latest')
      
