@@ -190,17 +190,27 @@ class MaestroCli(cmdln.Cmdln):
       """
       Setup the global environment.
       """
-      # Default to /var/lib/maestro
-      # If /var/lib/maestro doesn't exist or is not accessible then we use ~/.maestro instead
-      path = os.path.expanduser(os.path.join('~', '.maestro'))
-      if not os.path.exists(path):
-        sys.stderr.write("Global named environments directory does not exist {0}\n".format(path))
-        exit(1)
+      # Default to /var/lib/maestro and check there first
+      path = '/var/lib/maestro'
+      if not os.path.exists(path) or not os.access(path, os.W_OK):            
+        env_path = os.path.join(path, name)
+        # See if the environment exists in /var/lib maestro
+        if not os.path.exists(env_path):              
+          # If the environment doesn't exist or is not accessible then we check ~/.maestro instead
+          path = os.path.expanduser(os.path.join('~', '.maestro'))
+          if not os.path.exists(path):
+            sys.stderr.write("Global named environments directory does not exist {0}\n".format(path))
+            exit(1)
 
       env_path = os.path.join(path, name)
       if not os.path.exists(env_path):
         sys.stderr.write("Environment named {0} does not exist\n".format(env_path))
         exit(1)
+      
+      if not os.access(env_path, os.W_OK):
+        sys.stderr.write("Environment named {0} is not writable\n".format(env_path))
+        exit(1)
+
 
       return os.path.join(env_path, 'environment.yml')
 
@@ -209,12 +219,16 @@ class MaestroCli(cmdln.Cmdln):
       Setup the global environment.
       """
       # Default to /var/lib/maestro
-      # If /var/lib/maestro doesn't exist or is not accessible then we use ~/.maestro instead
-      path = os.path.expanduser(os.path.join('~', '.maestro'))
-      if not os.path.exists(path):
-        print "Creating ~/.maestro to hold named environments"
-        os.makedirs(path)
+      # It has to exist and be writable, otherwise we'll just use a directory relative to ~
+      path = '/var/lib/maestro'
+      if not os.path.exists(path) or not os.access(path, os.W_OK):      
+        # If /var/lib/maestro doesn't exist or is not accessible then we use ~/.maestro instead
+        path = os.path.expanduser(os.path.join('~', '.maestro'))
+        if not os.path.exists(path):
+          print "Creating ~/.maestro to hold named environments"
+          os.makedirs(path)
 
+      # The environment will live in a directory under path
       env_path = os.path.join(path, name)
       if not os.path.exists(env_path):
         print "Initializing ~/.maestro/" + name
@@ -234,6 +248,10 @@ class MaestroCli(cmdln.Cmdln):
         
         if not os.path.exists(environment):
           sys.stderr.write("Could not locate the environments file {0}\n".format(environment))
+          exit(1)
+
+        if not os.access(environment, os.W_OK):
+          sys.stderr.write("Environment file {0} is not writable\n".format(environment))
           exit(1)
 
       return environment
