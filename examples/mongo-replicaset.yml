@@ -15,4 +15,3 @@ templates:
       mongodb:
         count: 3
         port: 27017
-      

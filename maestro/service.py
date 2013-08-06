@@ -33,13 +33,13 @@ class Service:
     # Setup and build all the templates
     for tmpl in self.start_order:          
       if not self.config['templates'][tmpl]:
-        sys.stderr.write("Error: no configuration found for template: " + tmpl + "\n")
+        sys.stderr.write('Error: no configuration found for template: ' + tmpl + '\n')
         exit(1)
 
       config = self.config['templates'][tmpl]
       
       # Create the template. The service name and version will be dynamic once the new config format is implemented
-      utils.status("Building template %s" % (tmpl))
+      utils.status('Building template %s' % (tmpl))
       tmpl_instance = template.Template(tmpl, config, 'service', '0.1')
       tmpl_instance.build()
 
@@ -62,9 +62,9 @@ class Service:
       while count > 0:      
         name = tmpl
         if tag_name > 1:
-          name = name + "__" + str(count)
+          name = name + '__' + str(count)
 
-        utils.status("Launching instance of template %s named %s" % (tmpl, name))      
+        utils.status('Launching instance of template %s named %s' % (tmpl, name))      
         instance = tmpl_instance.instantiate(name)
         instance.run()
 
@@ -82,7 +82,7 @@ class Service:
     
   def start(self, container=None, wait_time=60):
     if not self._live():
-      utils.status("Environment has been destroyed and can't be started")
+      utils.status('Environment has been destroyed and can't be started')
       return False
 
     # If a container is provided we just start that container
@@ -101,7 +101,7 @@ class Service:
     
   def stop(self, container=None, timeout=None):
     if not self._live():
-      utils.status("Environment has been destroyed and can't be stopped.")
+      utils.status('Environment has been destroyed and can't be stopped.'')
       return False
      
     if container:
@@ -148,11 +148,11 @@ class Service:
       return container
     else:
       # Should handle arbitrary containers
-      raise ContainerError("Unknown template")
+      raise ContainerError('Unknown template')
 
   def ps(self):
-    columns = "{0:<14}{1:<19}{2:<44}{3:<11}{4:<15}\n" 
-    result = columns.format("ID", "NODE", "COMMAND", "STATUS", "PORTS")
+    columns = '{0:<14}{1:<19}{2:<44}{3:<11}{4:<15}\n'
+    result = columns.format('ID', 'NODE', 'COMMAND', 'STATUS', 'PORTS')
     for container in self.containers:
       container_id = self.containers[container].state['container_id']
       
@@ -171,8 +171,8 @@ class Service:
         
         for port in p:
           if ports:
-            ports += ", "
-          ports += p[port] + "->" + port 
+            ports += ', '
+          ports += p[port] + '->' + port 
         if state['State']['Running']:
           status = 'Running'
       except HTTPError:
@@ -228,13 +228,13 @@ class Service:
             count = config['require'][service].get('count', 1)          
             if count > 1:
               while count > 0:
-                name = service + "__" + str(count)
+                name = service + '__' + str(count)
                 service_env.append(self._pollService(tmpl, name, port, wait_time))
                 count = count - 1                
             else:
               service_env.append(self._pollService(tmpl, service, port, wait_time))
 
-            env.append(service.upper() + "=" + " ".join(service_env))
+            env.append(service.upper() + '=' + ' '.join(service_env))
       except:
         utils.status('Failure on require. Shutting down the environment')
         self.destroy()
