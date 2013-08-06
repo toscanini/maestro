@@ -17,6 +17,7 @@ class Service:
     if environment:
       self.load(environment)      
     else:
+      # If we didn't get an absolute path to a file, look for it in the current directory.
       if not conf_file.startswith('/'):
         conf_file = os.path.join(os.path.dirname(sys.argv[0]), conf_file)
 
