@@ -82,7 +82,7 @@ class Service:
     
   def start(self, container=None, wait_time=60):
     if not self._live():
-      utils.status('Environment has been destroyed and can't be started')
+      utils.status('Environment has been destroyed and can\'t be started')
       return False
 
     # If a container is provided we just start that container
@@ -101,7 +101,7 @@ class Service:
     
   def stop(self, container=None, timeout=None):
     if not self._live():
-      utils.status('Environment has been destroyed and can't be stopped.'')
+      utils.status('Environment has been destroyed and can\'t be stopped.')
       return False
      
     if container:
@@ -206,7 +206,7 @@ class Service:
     result = utils.waitForService(service_ip, int(port), wait_time)
     if result < 0:
       utils.status('Never found service %s on port %s' % (service, port))
-      raise ContainerError("Couldn't find required services, aborting")
+      raise ContainerError('Couldn\d find required services, aborting')
 
     utils.status('Found service %s on ip %s and port %s' % (service, service_ip, port))
     
