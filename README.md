@@ -37,6 +37,7 @@ Features
 ========
 
 - Build/start/stop/destroy multi-container docker environments via simple commands
+- Easily launch and manage multiple copies of the same environment
 - Declarative YAML format to specify container configurations for the environment
 - Easily launch multiple instances of the same container for testing cluster operations
 - Specify dependencies between containers so they start in order and wait for services to become available
@@ -143,6 +144,8 @@ The command line tool is called `maestro` and initial enironments are defined in
 
 The environment state will be saved to a file named `environment.yml` and commands that manipulate existing environments will look for an `environment.yml` in the current directory or it can be specified by the `-e` option.
 
+If you want to create a named environment you can use `-n` to set the name and it will be made a global environment that lives either under ~/.maestro or /var/lib/maestro depending on your setup.
+
 `maestro build`
 
 Setup a new environment using a `maestro.yml` specification.
@@ -177,8 +180,7 @@ Roadmap
 - ~~Add automatic pulling of base images~~
 - Make it easier to run the full test suite
 - Add the ability to depend on external services
-- Add the ability to have named global environments as well as environments stored in the local directory
+- ~~Add the ability to have named global environments as well as environments stored in the local directory~~
 - More robust support for running and adding containers to an existing environment
 - Direct build and instantiation of an environment from a git repo
-- Ability to span environments across multiple docker servers
 - ...
