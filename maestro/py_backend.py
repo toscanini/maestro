@@ -12,8 +12,8 @@ class PyBackend:
   def run_container(self, image_id, config):
     return self._start_container(image_id, config)
 
-  def start_container(self, container_id):
-    self.docker_client.start(container_id)
+  def start_container(self, container_id, mounts=None):
+    self.docker_client.start(container_id, binds=mounts)
   
   def stop_container(self, container_id, timeout=10):
     self.docker_client.stop(container_id, timeout=timeout)
@@ -23,7 +23,7 @@ class PyBackend:
     self.docker_client.remove_container(container_id)    
 
   def inspect_container(self, container_id):
-    self.docker_client.inspect_container(container_id)
+    return self.docker_client.inspect_container(container_id)
   
   ## Image management
 

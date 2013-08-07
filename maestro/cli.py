@@ -211,7 +211,6 @@ class MaestroCli(cmdln.Cmdln):
         sys.stderr.write("Environment named {0} is not writable\n".format(env_path))
         exit(1)
 
-
       return os.path.join(env_path, 'environment.yml')
 
     def _create_global_environment(self, name):

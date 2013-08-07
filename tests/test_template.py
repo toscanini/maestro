@@ -67,6 +67,17 @@ class TestTemplate(unittest.TestCase):
     self.assertTrue(t.build())
     t.destroy()
 
+  def testMount(self):
+    config = self._loadFixture("mount.yml")
+    t = template.Template('template_test', config, 'test.service', '0.1')
+    self.assertTrue(t.build())
+
+    container = t.instantiate('template_test')
+    container.run()
+    self.assertIsNotNone(container.inspect()['Volumes']['/var/www'])
+    container.destroy()
+    t.destroy()
+
   def testInstantiate(self):
     config = self._loadFixture("valid_base.yml")
     t = template.Template('template_test', config, 'test.service', '0.1')

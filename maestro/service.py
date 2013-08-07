@@ -97,7 +97,9 @@ class Service:
       for container in self.start_order:  
         self._handleRequire(container, wait_time)
         
+        # TODO: This doesn't restart all named containers - just those from the default environemnt
         self.containers[container].start()
+
     return True
     
   def stop(self, container=None, timeout=None):
@@ -128,7 +130,7 @@ class Service:
       for container in self.config['containers']:
         self.containers[container] = Container(container, self.config['containers'][container], 
           self.config['containers'][container])
-    
+      
   def save(self, filename='environment.yml'):
     self.log.info('Saving environment state to: %s', filename)      
       

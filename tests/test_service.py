@@ -258,15 +258,6 @@ class TestContainer(unittest.TestCase):
     
     self._configCheck(env)    
 
-  def testLoadGlobal(self):
-    mix = service.Service('fixtures/default.yml', name='global_name')
-    mix.build()
-    
-    env = yaml.load(mix.dump())    
-    
-    self._configCheck(env)    
-
-
   #@unittest.skip("skipping")
   def testRun(self):
     # Test the default command run

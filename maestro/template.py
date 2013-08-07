@@ -50,9 +50,20 @@ class Template:
   # Launches an instance of the template in a new container
   def instantiate(self, name, command=None):    
     config = copy.deepcopy(self.config['config'])
+
+    # Setup bind mounts to the host system    
+    bind_mounts = {}
+    if 'mounts' in self.config:
+      bind_mounts = self.config['mounts']
+      for src, dest in self.config['mounts'].items():
+        if 'volumes' not in config:          
+          config['volumes'] = {}
+        
+        config['volumes'][dest] = {}
+
     if command:
       config['command'] = command
-    return container.Container(name, {'template': self.name, 'image_id': self.config['image_id']}, config)
+    return container.Container(name, {'template': self.name, 'image_id': self.config['image_id']}, config, mounts=bind_mounts)
 
   def destroy(self):
     # If there is an image_id then we need to destroy the image.

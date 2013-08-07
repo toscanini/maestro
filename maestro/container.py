@@ -4,13 +4,14 @@ import utils, StringIO, logging
 import py_backend
 
 class Container:
-  def __init__(self, name, state, config):
+  def __init__(self, name, state, config, mounts=None):
     self.log = logging.getLogger('maestro')
     
     self.state = state    
     self.config = config
     self.name = name
-    
+    self.mounts = mounts
+
     if 'hostname' not in self.config:
       self.config['hostname'] = name
       
@@ -28,7 +29,7 @@ class Container:
 
   def start(self):
     utils.status("Starting container %s - %s" % (self.name, self.state['container_id'])) 
-    self.backend.start_container(self.state['container_id'])
+    self.backend.start_container(self.state['container_id'], self.mounts)
   
   def stop(self, timeout=10):
     utils.status("Stopping container %s - %s" % (self.name, self.state['container_id']))     
@@ -40,7 +41,10 @@ class Container:
     self.backend.remove_container(self.state['container_id'])    
 
   def get_ip_address(self):
-    return self.backend.get_ip_address(self.state['container_id'])    
+    return self.backend.get_ip_address(self.state['container_id']) 
+
+  def inspect(self):
+    return self.backend.inspect_container(self.state['container_id'])   
     
   def _start_container(self, start=True):
     # Start the container
