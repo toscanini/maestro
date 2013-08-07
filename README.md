@@ -37,11 +37,12 @@ Features
 ========
 
 - Build/start/stop/destroy multi-container docker environments via simple commands
+- Specify dependencies between containers so they start in order and wait for services to become available
+- Automatically configure dependent containers to know where to locate services from other containers in the same environment
 - Easily launch and manage multiple copies of the same environment
 - Declarative YAML format to specify container configurations for the environment
 - Easily launch multiple instances of the same container for testing cluster operations
-- Specify dependencies between containers so they start in order and wait for services to become available
-- Automatically configure dependent containers to know where to locate services from other containers in the same environment
+- Share data between the host machine and containers running in the environment
 - ... Much more to come
 
 Dependencies
@@ -106,7 +107,10 @@ Templates also define a basic docker configuration so that you can pre-define th
 
 `base_image` and `command` are the only required options if no `buildspec` is provided. If `buildspec` is provided `base_image` can be omitted
 
-You can use `require` to specify dependencies between services. The start order will be adjusted and any container that requires a port on a another container will wait for that port to become available before starting.
+`require` is used to specify dependencies between services. The start order will be adjusted and any container that requires a port on a another container will wait for that port to become available before starting.
+
+`mount` allows you to define bind mounts between a directory on the host and a directory in a container. This allows you to share files between the host and the container. 
+    Note: if you define a bind mount on a template then every instance of that template will mount the same host directory.
 
 This example yaml file shows how some of the docker parameters look:
 
@@ -114,6 +118,8 @@ This example yaml file shows how some of the docker parameters look:
   templates:
     test_server_1:
       base_image: ubuntu
+      mount:
+        /host/path: /container/path
       config:
         ports: 
           - '8080' 
@@ -134,8 +140,6 @@ This example yaml file shows how some of the docker parameters look:
 ```
 
 **Note:** *Command is required by the Docker Python api and having to specify it here can cause problems with images that pre-define entrypoints and commands.*
-
-**Note:** *the syntax for volumes is not fully specified and bind mounts are not currently supported.*
 
 Command Line Tools
 ===
