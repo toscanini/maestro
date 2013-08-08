@@ -95,12 +95,12 @@ class Service:
     if container:
       tmpl = self._getTemplate(container)
       # THis is not going to work right if starting a container from a collection
-      self._handleRequire(tmpl, wait_time)
+      env = self._handleRequire(tmpl, wait_time)
         
       self.containers[tmpl][container].start()  
     else:
       for tmpl in self.start_order:  
-        self._handleRequire(tmpl, wait_time)
+        env = self._handleRequire(tmpl, wait_time)
         
         for container in self.containers[tmpl]:
           self.containers[tmpl][container].start()
@@ -264,7 +264,24 @@ class Service:
       
       # Setup the env for dependent services
       if 'environment' in config['config']:
-        config['config']['environment'] += env
+        for entry in env:
+          name, value = entry.split('=')
+          result = []
+          replaced = False
+          # See if an existing variable exists and needs to be updated
+          for var in config['config']['environment']:
+            var_name, var_value = var.split('=')
+            if var_name == name:
+              replaced = True
+              result.append(entry)
+            else:
+              result.append(var)
+
+            if not replaced:
+              result.append(entry)
+        config['config']['environment'] = result 
       else:
         config['config']['environment'] = env
+
+      return config['config']['environment']
     

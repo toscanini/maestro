@@ -52,8 +52,7 @@ class MaestroCli(cmdln.Cmdln):
       if name:
         environment = self._create_global_environment(name)        
       else:
-        if not environment:  
-          environment = os.path.join(os.getcwd(), 'environment.yml')
+        environment = self._create_local_environment(opts)        
 
       containers.save(environment)
 
@@ -240,9 +239,7 @@ class MaestroCli(cmdln.Cmdln):
       if opts.name:
         environment = self._verify_global_environment(opts.name)
       else:
-        environment = opts.environment_file
-        if not environment:  
-          environment = os.path.join(os.getcwd(), 'environment.yml')
+        environment = self._create_local_environment(opts)        
         
         if not os.path.exists(environment):
           sys.stderr.write("Could not locate the environments file {0}\n".format(environment))
@@ -254,3 +251,13 @@ class MaestroCli(cmdln.Cmdln):
 
       return environment
     
+    def _create_local_environment(self, opts):
+      environment = opts.environment_file
+      if not environment:
+        base = os.path.join(os.getcwd(), '.maestro')  
+        environment = os.path.join(base, 'environment.yml')
+        if not os.path.exists(base):
+          print "Initializing " + base
+          os.makedirs(base)
+
+      return environment
