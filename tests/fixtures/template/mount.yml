@@ -1,0 +1,6 @@
+base_image: ubuntu
+config:
+  command: /bin/bash
+  detach: true  
+mounts:
+  /tmp: /var/www

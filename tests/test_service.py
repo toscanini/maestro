@@ -253,7 +253,7 @@ class TestContainer(unittest.TestCase):
   def testLoad(self):
     self.mix.save()
     mix = service.Service(environment = 'environment.yml')
-
+    
     env = yaml.load(mix.dump())    
     
     self._configCheck(env)    

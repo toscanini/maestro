@@ -96,7 +96,6 @@ class MaestroCli(cmdln.Cmdln):
         ${cmd_option_list}
       """
       container = None
-      print args
       if (len(args) > 0):
         container = args[0]
 

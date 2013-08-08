@@ -47,6 +47,9 @@ class Service:
 
       self.templates[tmpl] = tmpl_instance
 
+      # We'll store the running instances as a dict under the template
+      self.containers[tmpl] = {}
+
     # Start the envrionment
     for tmpl in self.start_order:            
       self._handleRequire(tmpl, wait_time)
@@ -69,14 +72,15 @@ class Service:
         instance = tmpl_instance.instantiate(name)
         instance.run()
 
-        self.containers[name] = instance
+        self.containers[tmpl][name] = instance
         
         count = count - 1
       
-  def destroy(self, timeout=None):   
-    for container in self.containers:
-      self.log.info('Destroying container: %s', container)      
-      self.containers[container].destroy(timeout) 
+  def destroy(self, timeout=None):       
+    for tmpl in reversed(self.start_order):
+      for container in self.containers[tmpl]:
+        self.log.info('Destroying container: %s', container)      
+        self.containers[tmpl][container].destroy(timeout) 
 
     self.state = 'destroyed'    
     return True
@@ -89,16 +93,17 @@ class Service:
     # If a container is provided we just start that container
     # TODO: may need an abstraction here to handle names of multi-container groups
     if container:
+      tmpl = self._getTemplate(container)
       # THis is not going to work right if starting a container from a collection
-      self._handleRequire(self.containers[container].state['template'], wait_time)
+      self._handleRequire(tmpl, wait_time)
         
-      self.containers[container].start()  
+      self.containers[tmpl][container].start()  
     else:
-      for container in self.start_order:  
-        self._handleRequire(container, wait_time)
+      for tmpl in self.start_order:  
+        self._handleRequire(tmpl, wait_time)
         
-        # TODO: This doesn't restart all named containers - just those from the default environemnt
-        self.containers[container].start()
+        for container in self.containers[tmpl]:
+          self.containers[tmpl][container].start()
 
     return True
     
@@ -108,10 +113,11 @@ class Service:
       return False
      
     if container:
-      self.containers[container].stop(timeout)
+      self.containers[self._getTemplate(container)][container].stop(timeout)
     else:
-      for container in self.containers:             
-        self.containers[container].stop(timeout)
+      for tmpl in reversed(self.start_order):  
+        for container in self.containers[tmpl]:             
+          self.containers[tmpl][container].stop(timeout)
 
     return True
 
@@ -126,10 +132,14 @@ class Service:
       for tmpl in self.config['templates']:
         # TODO fix hardcoded service name and version
         self.templates[tmpl] = template.Template(tmpl, self.config['templates'][tmpl], 'service', '0.1')
-      
+        self.containers[tmpl] = {}
+
+      self.start_order = utils.order(self.config['templates'])
       for container in self.config['containers']:
-        self.containers[container] = Container(container, self.config['containers'][container], 
-          self.config['containers'][container])
+        tmpl = self.config['containers'][container]['template']
+      
+        self.containers[tmpl][container] = Container(container, self.config['containers'][container], 
+          self.config['templates'][tmpl]['config'])
       
   def save(self, filename='environment.yml'):
     self.log.info('Saving environment state to: %s', filename)      
@@ -147,7 +157,7 @@ class Service:
       container.run()
 
       # for dynamic runs there  needs to be a way to display the output of the command.
-      self.containers[name] = container
+      self.containers[template][name] = container
       return container
     else:
       # Should handle arbitrary containers
@@ -156,32 +166,34 @@ class Service:
   def ps(self):
     columns = '{0:<14}{1:<19}{2:<44}{3:<11}{4:<15}\n'
     result = columns.format('ID', 'NODE', 'COMMAND', 'STATUS', 'PORTS')
-    for container in self.containers:
-      container_id = self.containers[container].state['container_id']
-      
-      node_name = (container[:15] + '..') if len(container) > 17 else container
 
-      command = ''
-      status = 'Stopped'
-      ports = ''
-      try:
-        state = docker.Client().inspect_container(container_id)
-        command = string.join([state['Path']] + state['Args'])
-        command = (command[:40] + '..') if len(command) > 42 else command
-        p = []
-        if state['NetworkSettings']['PortMapping']:
-          p = state['NetworkSettings']['PortMapping']['Tcp']
+    for tmpl in self.templates:
+      for container in self.containers[tmpl]:
+        container_id = self.containers[tmpl][container].state['container_id']
         
-        for port in p:
-          if ports:
-            ports += ', '
-          ports += p[port] + '->' + port 
-        if state['State']['Running']:
-          status = 'Running'
-      except HTTPError:
-        status = 'Destroyed'
+        node_name = (container[:15] + '..') if len(container) > 17 else container
 
-      result += columns.format(container_id, node_name, command, status, ports)
+        command = ''
+        status = 'Stopped'
+        ports = ''
+        try:
+          state = docker.Client().inspect_container(container_id)
+          command = string.join([state['Path']] + state['Args'])
+          command = (command[:40] + '..') if len(command) > 42 else command
+          p = []
+          if state['NetworkSettings']['PortMapping']:
+            p = state['NetworkSettings']['PortMapping']['Tcp']
+          
+          for port in p:
+            if ports:
+              ports += ', '
+            ports += p[port] + '->' + port 
+          if state['State']['Running']:
+            status = 'Running'
+        except HTTPError:
+          status = 'Destroyed'
+
+        result += columns.format(container_id, node_name, command, status, ports)
 
     return result.rstrip('\n')
 
@@ -189,21 +201,28 @@ class Service:
     result = {}
     result['state'] = self.state
     result['templates'] = {}
+    result['containers'] = {}
+    
     for template in self.templates:      
       result['templates'][template] = self.templates[template].config
 
-    result['containers'] = {}
-    for container in self.containers:      
-      result['containers'][container] = self.containers[container].state
+      for container in self.containers[template]:      
+        result['containers'][container] = self.containers[template][container].state
 
     return yaml.dump(result, Dumper=yaml.SafeDumper)
   
+  def _getTemplate(self, container):
+    # Find the template for this container
+    for tmpl in self.containers:
+      if container in self.containers[tmpl]:
+        return tmpl
+
   def _live(self):
     return self.state == 'live'
 
-  def _pollService(self, container, service, port, wait_time):
+  def _pollService(self, container, service, name, port, wait_time):
     # Based on start_order the service should already be running
-    service_ip = self.containers[service].get_ip_address()
+    service_ip = self.containers[service][name].get_ip_address()
     utils.status('Starting %s: waiting for service %s on ip %s and port %s' % (container, service, service_ip, port))
      
     result = utils.waitForService(service_ip, int(port), wait_time)
@@ -232,10 +251,10 @@ class Service:
             if count > 1:
               while count > 0:
                 name = service + '__' + str(count)
-                service_env.append(self._pollService(tmpl, name, port, wait_time))
+                service_env.append(self._pollService(tmpl, service, name, port, wait_time))
                 count = count - 1                
             else:
-              service_env.append(self._pollService(tmpl, service, port, wait_time))
+              service_env.append(self._pollService(tmpl, service, service, port, wait_time))
 
             env.append(service.upper() + '=' + ' '.join(service_env))
       except:
