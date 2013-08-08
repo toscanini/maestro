@@ -1,7 +1,7 @@
 Maestro
 ============
 
-A command line tool for Container orchestration and management in multi-container docker environments. Container sets are defined in a simple YAML format that mirrors the options available in the Docker API. The intention is to be able to easily launch, orchestrate and destroy complex multi-node envionments for testing and development.
+Maestro provides the ability to easily luanch, orchestrate and manage mulitple Docker containers as single unit. Container sets are defined in a simple YAML format that allows you to define how the containers should be created and to specify relationships between containers. The intention is to make easy to create and use complex multi-node container envionments for testing and development.
 
 This is what it currently looks like to use maestro and deploy a multi-tier node.js/mongodb application. All that's required is a maestro.yml in the root of the repository.
 
@@ -9,22 +9,34 @@ This is what it currently looks like to use maestro and deploy a multi-tier node
 $ git clone https://github.com/kstaken/express-todo-example.git
 $ cd express-todo-example && maestro build
 Building template mongodb
-Launching instance of template mongodb named mongodb
-Starting container mongodb - 8e766a36e5be
-Starting nodejs: waiting for service mongodb on ip 172.16.1.83 and port 27017
-Found service mongodb on ip 172.16.1.83 and port 27017
 Building template nodejs
+Launching instance of template mongodb named mongodb
+Starting container mongodb - 144af5ca089d
+Starting nodejs: waiting for service mongodb on ip 172.16.0.61 and port 27017
+Found service mongodb on ip 172.16.0.61 and port 27017
 Launching instance of template nodejs named nodejs
-Starting container nodejs - 40053c060f27
+Starting container nodejs - 52be61a3242c
 Launched.
 
 $ maestro ps
 ID            NODE               COMMAND                                     STATUS     PORTS
-8e766a36e5be  mongodb            /usr/bin/mongod --config /etc/mongodb.conf  Running
-40053c060f27  nodejs             /usr/bin/node /var/www/app.js               Running    49289->80
+144af5ca089d  mongodb            /usr/bin/mongod --config /etc/mongodb.conf  Running
+52be61a3242c  nodejs             /usr/bin/node /var/www/app.js               Running    49184->80
+
+$ maestro stop
+Stopping container mongodb - 144af5ca089d
+Stopping container nodejs - 52be61a3242c
+Stopped.
+
+$ maestro start
+Starting container mongodb - 144af5ca089d
+Starting nodejs: waiting for service mongodb on ip 172.16.0.63 and port 27017
+Found service mongodb on ip 172.16.0.63 and port 27017
+Starting container nodejs - 52be61a3242c
+Started.
 ```
 
-And the app would be accessible on http://localhost:49289/.
+In this example the app would be accessible on http://localhost:49184/.
 
 Status
 ======
