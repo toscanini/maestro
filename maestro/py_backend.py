@@ -24,6 +24,9 @@ class PyBackend:
 
   def inspect_container(self, container_id):
     return self.docker_client.inspect_container(container_id)
+
+  def commit_container(self, container_id):
+    return self.docker_client.commit(container_id)    
   
   ## Image management
 

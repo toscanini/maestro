@@ -94,16 +94,26 @@ class Service:
     # TODO: may need an abstraction here to handle names of multi-container groups
     if container:
       tmpl = self._getTemplate(container)
-      # THis is not going to work right if starting a container from a collection
-      env = self._handleRequire(tmpl, wait_time)
-        
-      self.containers[tmpl][container].start()  
+      
+      rerun = self._handleRequire(tmpl, wait_time)
+      
+      # We need to see if env has changed and then commit and run a new container.
+      # This rerun functionality should only be a temporary solution as each time the
+      # container is restarted this way it will consume a layer.
+      # This is only necessary because docker start won't take a new set of env vars
+      if rerun:
+        self.containers[tmpl][container].rerun()  
+      else:
+        self.containers[tmpl][container].start()  
     else:
       for tmpl in self.start_order:  
-        env = self._handleRequire(tmpl, wait_time)
+        rerun = self._handleRequire(tmpl, wait_time)
         
         for container in self.containers[tmpl]:
-          self.containers[tmpl][container].start()
+          if rerun:
+            self.containers[tmpl][container].rerun()
+          else:
+            self.containers[tmpl][container].start()
 
     return True
     
@@ -262,7 +272,9 @@ class Service:
         self.destroy()
         raise
       
-      # Setup the env for dependent services
+      # If the environment changes then dependent containers will need to be re-run not just restarted
+      rerun = False
+      # Setup the env for dependent services      
       if 'environment' in config['config']:
         for entry in env:
           name, value = entry.split('=')
@@ -271,17 +283,20 @@ class Service:
           # See if an existing variable exists and needs to be updated
           for var in config['config']['environment']:
             var_name, var_value = var.split('=')
-            if var_name == name:
+            if var_name == name and var_value != value:
               replaced = True
+              rerun = True
               result.append(entry)
             else:
               result.append(var)
 
             if not replaced:
               result.append(entry)
+
         config['config']['environment'] = result 
       else:
         config['config']['environment'] = env
 
-      return config['config']['environment']
+      # Determines whether or not a container can simply be restarted
+      return rerun
     

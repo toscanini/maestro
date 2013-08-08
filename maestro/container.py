@@ -27,6 +27,11 @@ class Container:
   def run(self):
     self._start_container()
 
+  def rerun(self):
+    # Commit the current container and then use that image_id to restart.
+    self.state['image_id'] = self.backend.commit_container(self.state['container_id'])['Id']
+    self._start_container()
+
   def start(self):
     utils.status("Starting container %s - %s" % (self.name, self.state['container_id'])) 
     self.backend.start_container(self.state['container_id'], self.mounts)
