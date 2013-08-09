@@ -164,7 +164,7 @@ class MaestroCli(cmdln.Cmdln):
       
       template = args[0]
       commandline = args[1:]
-      
+      print " ".join(commandline)
       containers = service.Service(environment=environment)
       containers.run(template, commandline, attach=opts.attach, dont_add=opts.dont_add) 
       containers.save(environment)

@@ -62,7 +62,8 @@ class Template:
         config['volumes'][dest] = {}
 
     if command:
-      config['command'] = command
+      config['command'] = " ".join(command)
+    print config['command']
     return container.Container(name, {'template': self.name, 'image_id': self.config['image_id']}, config, mounts=bind_mounts)
 
   def destroy(self):
