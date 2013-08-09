@@ -157,7 +157,7 @@ class Service:
     with open(filename, 'w') as output_file:
       output_file.write(self.dump())
 
-  def run(self, template, commandline=None, wait_time=60):
+  def run(self, template, commandline=None, wait_time=60, attach=False, dont_add=False):
     if template in self.templates:
       self._handleRequire(template, wait_time)
       
@@ -166,8 +166,13 @@ class Service:
       container = self.templates[template].instantiate(name, commandline)
       container.run()
 
+      # For temporary containers we may not want to save it in the environment
+      if not dont_add:
+        self.containers[template][name] = container
+      
       # for dynamic runs there  needs to be a way to display the output of the command.
-      self.containers[template][name] = container
+      if attach:
+        container.attach()
       return container
     else:
       # Should handle arbitrary containers
@@ -287,12 +292,15 @@ class Service:
               replaced = True
               rerun = True
               result.append(entry)
+            elif var_name == name and var_value == value:
+              # Just drop any full matches. We'll add it back later
+              pass
             else:
               result.append(var)
 
-            if not replaced:
-              result.append(entry)
-
+          if not replaced:
+            result.append(entry)
+    
         config['config']['environment'] = result 
       else:
         config['config']['environment'] = env

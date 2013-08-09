@@ -1,4 +1,4 @@
-import os
+import os, sys
 from exceptions import ContainerError
 import utils, StringIO, logging
 import py_backend
@@ -50,6 +50,11 @@ class Container:
 
   def inspect(self):
     return self.backend.inspect_container(self.state['container_id'])   
+
+  def attach(self):
+    # should probably catch ctrl-c here so that the process doesn't abort
+    for line in self.backend.attach_container(self.state['container_id']):
+      sys.stdout.write(line)
     
   def _start_container(self, start=True):
     # Start the container

@@ -143,6 +143,10 @@ class MaestroCli(cmdln.Cmdln):
                   help='path to the environment file to use to save the state of running containers')
     @cmdln.option("-n", "--name",
                   help='Create a global named environment using the provided name')
+    @cmdln.option("-a", "--attach", action="store_true",
+                  help='Attach to the running container to view output')    
+    @cmdln.option("-d", "--dont_add", action="store_true",
+                  help='Just run the command and exit. Don\'t add the container to the environment')        
     def do_run(self, subcmd, opts, *args):
       """Start a set of Docker containers that had been previously stopped. Container state is defined in an environment file. 
 
@@ -152,20 +156,23 @@ class MaestroCli(cmdln.Cmdln):
         ${cmd_option_list}
       """
       container = None
-      if (len(sys.argv) <= 2):
+      if (len(args) == 0):
         sys.stderr.write("Error: Container name must be provided\n")
         exit(1)
 
       environment = self._verify_environment(opts)
       
-      template = sys.argv[2]
-      commandline = sys.argv[3:]
+      template = args[0]
+      commandline = args[1:]
       
       containers = service.Service(environment=environment)
-      containers.run(template, commandline) 
+      containers.run(template, commandline, attach=opts.attach, dont_add=opts.dont_add) 
       containers.save(environment)
 
-      print "Running a new instance of " + template     
+      if opts.dont_add:
+        print "Execution of " + template + " complete."
+      else:
+        print "Adding a new instance of " + template + "."   
 
     @cmdln.option("-e", "--environment_file",
                   help='path to the environment file to use to save the state of running containers')
