@@ -62,7 +62,10 @@ class Template:
         config['volumes'][dest] = {}
 
     if command:
-      config['command'] = " ".join(command)
+      if isinstance(command, basestring):
+        config['command'] = command
+      else:
+        config['command'] = " ".join(command)
       
     return container.Container(name, {'template': self.name, 'image_id': self.config['image_id']}, config, mounts=bind_mounts)
 
