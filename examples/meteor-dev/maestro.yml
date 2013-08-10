@@ -1,0 +1,24 @@
+templates:
+  meteor: 
+    config:
+      command: '/bin/bash -c "cd /var/www && MONGO_URL=mongodb://$MONGODB:27017/your_db meteor"'
+      ports: 
+        - '3000'  
+    mounts:
+      /vagrant/maestro/examples/meteor-dev/app: /var/www
+    buildspec:
+      dockerfile: |
+        FROM  ubuntu:12.10
+        RUN apt-get update && apt-get install -y curl
+        RUN curl http://install.meteor.com | /bin/sh
+        RUN mkdir /var/www
+    require:
+      mongodb: 
+        port: '27017'
+  mongodb:     
+    config:
+      command: /usr/bin/mongod --config /etc/mongodb.conf      
+    buildspec:
+      url: github.com/toscanini/docker-mongodb
+    
+      
