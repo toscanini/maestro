@@ -69,6 +69,8 @@ Installation
 
 Install Docker as described here: http://www.docker.io/gettingstarted/
 
+Note: Docker 0.5.2 changed from listening on a network socket to listening on a unix socket due to a security issue. At this time, to use Maestro with Docker 0.5.2 you must re-enable the TCP socket in Docker. `/usr/bin/docker -d -H=tcp://127.0.0.1:4243` This is safe if you're running Docker inside a VM dedicated to that purpose but not if you're running Docker directly on your physical computer. This will be fixed in the future.
+
 Then:
 ```
     sudo apt-get install -y python-pip
