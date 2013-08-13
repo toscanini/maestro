@@ -1,7 +1,7 @@
 Maestro
 ============
 
-Maestro provides the ability to easily luanch, orchestrate and manage mulitple Docker containers as single unit. Container sets are defined in a simple YAML format that allows you to define how the containers should be created and to specify relationships between containers. The intention is to make easy to create and use complex multi-node container envionments for testing and development.
+Maestro provides the ability to easily launch, orchestrate and manage mulitple Docker containers as single unit. Container sets are defined in a simple YAML format that allows you to define how the containers should be created and to specify relationships between containers. The intention is to make easy to create and use complex multi-node container envionments for testing and development.
 
 This is what it currently looks like to use maestro and deploy a multi-tier node.js/mongodb application. All that's required is a maestro.yml in the root of the repository.
 
